@@ -1531,9 +1531,9 @@
 	function setDiscountText(qty, productName) {
 		var discountTitle = '<font color="black">' + productName + '</font>';
 		if (getDiscount(qty) > 0) {	// we have passed the threshold for applying a discount
-			discountTitle += " <font class='bulk-title-extra'>Add More, Save More!</font>";
+			discountTitle += ' <font class="bulk-title-extra">Add More, Save More!</font>';
 		}else if (parseInt(minDiscountLevel) > 0) {
-			discountTitle += " <font class='bulk-title-extra'>Bulk Discounts... Starting At Only " + minDiscountLevel + " Items!</font>";
+			discountTitle += ' <font class="bulk-title-extra">Bulk Discounts... Starting At Only ' + minDiscountLevel + ' Items!</font>';
 		}
 
 		document.getElementById('bulk-savings-start').innerHTML = discountTitle;
