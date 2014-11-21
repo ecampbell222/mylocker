@@ -1,3 +1,4 @@
+<!--testing-->
 <cfcontent type="application/xhtml+xml" /><?xml version="1.0"?>
 <cfsilent>
 	<cfset adminIps = "12.160.24.66" />			<!--- separate multiple ip addresses by commas --->
