@@ -1525,26 +1525,18 @@
 			if (minDiscountLevel == 0 && discounts[i].discount > 0) minDiscountLevel=discounts[i].qstart;
 		}
 
-		setDiscountText(1);
+		setDiscountText(1,'');
 	}
 
-	function setDiscountText(qty) {
-		if (getDiscount(qty) > 0)	// we have passed the threshold for applying a discount
-			document.getElementById('bulk-savings-start').innerHTML = "Add More, Save More!";
-		else if (parseInt(minDiscountLevel) > 0)		
-			document.getElementById('bulk-savings-start').innerHTML = "Bulk Discounts... Starting At Only " + minDiscountLevel + " Items!";
-		else
-			document.getElementById('bulk-savings-start').innerHTML = ""; 
-	}
-
-	function setDiscountTextTitle(qty) {
-		var minDiscountValue = parseInt(minDiscountLevel) + 6;
-		//var minDiscountValue = parseInt(minDiscountLevel); //for prod
-		if (qty >= minDiscountValue) {
-			document.getElementById('bulk-title').innerHTML += " <font class='bulk-title-extra'>Add More, Save More!</font>";
-		}else{
-			document.getElementById('bulk-title').innerHTML += " <font class='bulk-title-extra'>Bulk Discounts... Starting At Only " + minDiscountValue + " Items!</font>";
+	function setDiscountText(qty, productName) {
+		var discountTitle = productName;
+		if (getDiscount(qty) > 0) {	// we have passed the threshold for applying a discount
+			discountTitle += " <font class='bulk-title-extra'>Add More, Save More!</font>";
+		}else if (parseInt(minDiscountLevel) > 0) {
+			discountTitle += " <font class='bulk-title-extra'>Bulk Discounts... Starting At Only " + minDiscountLevel + " Items!</font>";
 		}
+
+		document.getElementById('bulk-savings-start').innerHTML = discountTitle;
 	}
 
 	function getDiscount(qty){
@@ -2784,7 +2776,6 @@
 			var passProdName = he.escape(products['prod_'+selectedProduct].prodName);
 		}
 		//Check the quantity, if greater than 6 change red text
-		document.getElementById('bulk-title').innerHTML = passProdName;
 		var tDiscount = tPrice * iDiscount;
 		var oTotal = tPrice - tDiscount;
 		var oSizePremium = tSizePremium;
@@ -2793,8 +2784,7 @@
 		var oBackPremiumDiscounted = (1-iDiscount)*tBackPremium;
 		var rBasePriceDiscounted = (1-iDiscount)*rBasePrice;
 		var rBackBasePriceDiscounted = (1-iDiscount)*rBackBasePrice;
-		setDiscountTextTitle(tQuan);
-		setDiscountText(tQuan);
+		setDiscountText(tQuan, passProdName);
 
 		document.getElementById('back-base-price').innerHTML = parseFloat(rBackBasePriceDiscounted).toFixed(2).toString();
 		document.getElementById('back-base-price2').innerHTML = parseFloat(rBackBasePriceDiscounted).toFixed(2).toString();

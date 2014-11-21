@@ -1044,7 +1044,7 @@ div#zoomBut {
 	-webkit-transition: all .5s ease-in-out;
 	transition: all .5s ease-in-out;
 }
-#bulk-title {
+.bulk-title {
 	position:absolute;
 	top:10px;
 	left:27px;
@@ -1207,7 +1207,7 @@ a.cart-close {
 }
 #bulk-savings-start {
 	padding:5px 15px; 
-	color:#2e8637;
+	color:#CF201D;
 	font-size:1.4em; 
 	font-weight:bold;
 	text-align:left;
