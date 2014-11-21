@@ -935,7 +935,6 @@
 			<div id="div-btn-bulk-add-to-cart">
 				<a href="" id="atc" onclick="return addToCart();" style="position:relative; width:200px; display:inline-block;"><img src="_img/btn_add_to_cart-162x73.png" alt="" border="0" width="162" height="73" /></a>
 			</div>
-			<div id="bulk-title"></div>
 			<div id="cart-page-wrapper">
 				<div id="cart-page-1">
 					<div id="bulk-savings-start"></div>
