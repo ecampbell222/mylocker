@@ -1529,7 +1529,7 @@
 	}
 
 	function setDiscountText(qty, productName) {
-		var discountTitle = productName;
+		var discountTitle = '<font color="black">' + productName + '</font>';
 		if (getDiscount(qty) > 0) {	// we have passed the threshold for applying a discount
 			discountTitle += " <font class='bulk-title-extra'>Add More, Save More!</font>";
 		}else if (parseInt(minDiscountLevel) > 0) {
@@ -1828,12 +1828,10 @@
 	function closeCart() {
 		document.getElementById('pop-cart').style.top='530px';
 		document.getElementById("div-btn-bulk-add-to-cart").style.display = "none";	//Added to hide add to cart image	
-		document.getElementById("bulk-title").style.display = "none";
 	}
 
 	function showCartPageOne() {
 		document.getElementById("div-btn-bulk-add-to-cart").style.display = "block"; //Added to display add to cart image				
-		document.getElementById("bulk-title").style.display = "block";
 		document.getElementById('cart-page-2').style.left='100%';
 		document.getElementById('cart-page-1').style.left='0';
 	}
@@ -2841,7 +2839,6 @@
 		if (verifySizeQtyNameNumber()) {
 			submitCart();
 			document.getElementById("div-btn-bulk-add-to-cart").style.display = "none";	//Added to hide add to cart image
-			document.getElementById("bulk-title").style.display = "none";			
 		} else {
 			toggleCartPageMessages('on');
 		}
