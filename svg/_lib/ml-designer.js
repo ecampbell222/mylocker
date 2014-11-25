@@ -2787,23 +2787,26 @@
 		document.getElementById('back-base-price').innerHTML = parseFloat(rBackBasePriceDiscounted).toFixed(2).toString();
 		document.getElementById('back-base-price2').innerHTML = parseFloat(rBackBasePriceDiscounted).toFixed(2).toString();
 
-		document.getElementById('quantity-total').innerHTML = tQuan.toString();
+		//document.getElementById('quantity-total').innerHTML = tQuan.toString(); //To Remove
 
-		document.getElementById('price-each').innerHTML = parseFloat((1-iDiscount)*globalSkuPrice).toFixed(2).toString();
+		//document.getElementById('price-each').innerHTML = parseFloat((1-iDiscount)*globalSkuPrice).toFixed(2).toString(); //To Remove
 
-		document.getElementById('size-premium').innerHTML = parseFloat(oSizePremiumDiscounted).toFixed(2).toString();
+		//document.getElementById('size-premium').innerHTML = parseFloat(oSizePremiumDiscounted).toFixed(2).toString(); //To Remove
 
-		document.getElementById('back-premium').innerHTML = parseFloat(oBackPremiumDiscounted).toFixed(2).toString();
-		document.getElementById('quan-back-designs').innerHTML = tBackQuan.toString();
+		//document.getElementById('back-premium').innerHTML = parseFloat(oBackPremiumDiscounted).toFixed(2).toString(); //To Remove
+		document.getElementById('back-premium-bottom').innerHTML = parseFloat(oBackPremiumDiscounted).toFixed(2).toString();
+		//document.getElementById('quan-back-designs').innerHTML = tBackQuan.toString(); //To Remove
+		document.getElementById('quan-back-designs-bottom').innerHTML = tBackQuan.toString();
 		if (!numBackProducts) document.getElementById('price-block-backpremium').style.display = 'none';
 		else document.getElementById('price-block-backpremium').style.display = '';
 
-		document.getElementById('total').innerHTML = parseFloat(tPrice).toFixed(2).toString();
+		//document.getElementById('total').innerHTML = parseFloat(tPrice).toFixed(2).toString(); //To Remove
 
-		document.getElementById('total-discount').innerHTML = parseFloat(tDiscount).toFixed(2).toString();
+		//document.getElementById('total-discount').innerHTML = parseFloat(tDiscount).toFixed(2).toString(); //To Remove
 		if (tDiscount > 0) document.getElementById('price-block-totaldiscount').style.display = '';
 
-		document.getElementById('order-total').innerHTML = parseFloat(oTotal).toFixed(2).toString();
+		//document.getElementById('order-total').innerHTML = parseFloat(oTotal).toFixed(2).toString(); //To Remove
+		document.getElementById('order-total-bottom').innerHTML = parseFloat(oTotal).toFixed(2).toString();
 
 		var cQ = document.getElementById('cQ');
 		var cS = document.getElementById('cS');

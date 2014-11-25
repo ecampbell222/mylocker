@@ -967,6 +967,18 @@ div#zoomBut {
 	border-radius:10px; 
 	box-shadow:0 0 12px rgba(0,0,0,0.3);
 }
+#totals-block-wrapper {
+	position:relative;
+	overflow-y:auto;
+	overflow-x:hidden; 
+	height:47px;
+	margin-right:260px;
+	border-left:1px solid silver; 
+	border-right:1px solid silver; 
+	border-bottom:1px solid silver; 
+	border-top:0px solid silver; 
+	text-align:center;
+}
 #sizes-block-wrapper {
 	position:relative;
 	/* top:100px; */ 
@@ -975,7 +987,7 @@ div#zoomBut {
 	/* float:left; */
 	overflow-y:auto;
 	overflow-x:hidden; 
-	height:445px;
+	height:398px;
 	margin-right:260px;
 	/* width:70%; */ 
 	/* border-radius:10px; */ 

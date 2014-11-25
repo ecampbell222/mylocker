@@ -1064,25 +1064,18 @@
 							<div id="addback-checkbox-replacement">
 								&nbsp;
 							</div>
+							<!--This table will go away, I'm keeping this here for now in case I need it-->
 							<table id="tbl-price-block" cellpadding="0" cellspacing="0" border="0" align="center">
 								<tr id="price-block-totalqty">
-									<td style="text-align:right; padding-right:12px; width:69%;">Total Qty:</td>
-									<td style="text-align:right; padding-right:12px; width:29%;"><span id="quantity-total">X</span></td>
 									<td style="text-algin:center;"><a id="toggle-price-detail" class="v-triangle-down" href="javascript:togglePriceDetail();" /></td>
 								</tr>
 								<tr id="price-block-priceeach" style="display:none;">
-									<td style="text-align:right; padding-right:12px;">Price Each:</td>
-									<td style="text-align:right; padding-right:12px;">$<span id="price-each">XX.XX</span></td>
 									<td style="text-algin:center;"></td>
 								</tr>
 								<tr id="price-block-sizepremium" style="display:none;">
-									<td style="text-align:right; padding-right:12px;">Size Premium:</td>
-									<td style="text-align:right; padding-right:12px;">$<span id="size-premium">XX.XX</span></td>
 									<td style="text-algin:center; vertical-align:middle;" valign="middle"></td>
 								</tr>
 								<tr id="price-block-backpremium" style="">
-									<td style="text-align:right; padding-right:12px;">Back Designs (<span id="quan-back-designs">X</span>):</td>
-									<td style="text-align:right; padding-right:12px;">$<span id="back-premium">XX.XX</span></td>
 									<td style="text-algin:center; vertical-align:middle;" valign="middle"></td>
 								</tr>
 								<tr id="price-block-totaldiscount" style="">
@@ -1091,8 +1084,6 @@
 									<td style="text-algin:center; vertical-align:middle; padding-bottom:10px;" valign="middle"></td>
 								</tr>
 								<tr id="price-block-ordertotal">
-									<td style="text-align:right; padding-right:12px;">TOTAL:</td>
-									<td style="text-align:right; padding-right:12px;">$<span id="order-total">XX.XX</span></td>
 									<td style="text-algin:center;"></td>
 								</tr>
 								<tr id="price-block-total" style="display:none;">
@@ -1143,6 +1134,20 @@
 								<div id="cart-view-toggle">+ Buy More</div>
 							</div>
 						</div>	<!--- #sizes-block-wrapper --->
+						<div id="totals-block-wrapper">
+							<div id="totals-block-header" style="height:41px;display:block;position:relative;font-size:10px;padding:3px 0;background-color:#ECECEC;">
+								<div style="display:inline-block; width:90%; position:relative;">
+									<div style="float:right;">
+										<table>
+											<tr><td valign="top" style="font-size:12px;" align="right">Back Designs(<span id="quan-back-designs-bottom">0</span>):</td><td width="20">
+											</td><td valign="top" style="font-size:12px;" align="left">$<span id="back-premium-bottom">0.00</span></td></tr>
+											<tr><td valign="top" style="font-size:14px; color:#333333; font-weight: bold;" align="right">ORDER TOTAL:</td><td width="20">
+											</td><td valign="top" style="font-size:14px; color:#333333; font-weight: bold;" align="left">$<span id="order-total-bottom">0.00</span></td></tr>
+										</table>										
+									</div>
+								</div>
+							</div>
+						</div>
 					</div>
 						
 					<!---
