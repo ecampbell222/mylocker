@@ -1531,9 +1531,9 @@
 	function setDiscountText(qty, productName) {
 		var discountTitle = '<font color="black">' + productName + '</font>';
 		if (getDiscount(qty) > 0) {	// we have passed the threshold for applying a discount
-			discountTitle += ' <font class="bulk-title-extra">Add More, Save More!</font>';
+			discountTitle += ' <i><font class="bulk-title-extra">Add More, Save More!</font></i>';
 		}else if (parseInt(minDiscountLevel) > 0) {
-			discountTitle += ' <font class="bulk-title-extra">Bulk Discounts... Starting At Only ' + minDiscountLevel + ' Items!</font>';
+			discountTitle += ' <i><font class="bulk-title-extra">Bulk Discounts... Starting At Only ' + minDiscountLevel + ' Items!</font></i>';
 		}
 
 		document.getElementById('bulk-savings-start').innerHTML = discountTitle;
@@ -1543,6 +1543,29 @@
 		for(var i=0;i<discounts.length;i++){
 			if (parseInt(qty) >= discounts[i].qstart && parseInt(qty) <= discounts[i].qend) return parseFloat(discounts[i].discount/100);
 		}
+		return 0;
+	}
+
+	function drawDiscounts() {
+		var disDiscount = '<table width="100%" cellspacing="0" cellpadding="2"><tr><td align="center" width="50%"><span style="font-size:10px;font-weight:bold;color:#333333;">PIECES</span></td><td align="center" width="50%"><span style="font-size:10px;font-weight:bold;color:#333333;">PRICE EACH</span></td></tr>';
+		var j = 0;
+		for(var i=0;i<discounts.length;i++){
+			if (minDiscountLevel <= discounts[i].qstart) {
+				var discountBackColor = "#EAEAEA";
+				if (j.toString().substring(-1) == "0" || j.toString().substring(-1) == "2" || j.toString().substring(-1) == "4" || j.toString().substring(-1) == "6" || j.toString().substring(-1) == "8") {
+					discountBackColor = "#D3D3D3";
+				}
+				var disPriceVal = parseFloat(currentPrice) - parseFloat(discounts[i].discount/100);
+				disDiscount += '<tr><td align="center" style="color:#333333;background-color:' + discountBackColor +';">' + discounts[i].qstart + '-' + discounts[i].qend + '</td>';
+				disDiscount += '<td align="center" style="font-weight:bold;background-color:' + discountBackColor +';">$' + disPriceVal.toFixed(2) + '</td></tr>';
+				j++;
+			}
+		}
+		disDiscount += '</table>';
+		if (i > 0) {
+			document.getElementById("discount-grid-display").innerHTML = disDiscount;
+		}
+		
 		return 0;
 	}
 
@@ -2783,6 +2806,7 @@
 		var rBasePriceDiscounted = (1-iDiscount)*rBasePrice;
 		var rBackBasePriceDiscounted = (1-iDiscount)*rBackBasePrice;
 		setDiscountText(tQuan, passProdName);
+		drawDiscounts();
 
 		document.getElementById('back-base-price').innerHTML = parseFloat(rBackBasePriceDiscounted).toFixed(2).toString();
 		document.getElementById('back-base-price2').innerHTML = parseFloat(rBackBasePriceDiscounted).toFixed(2).toString();

@@ -966,6 +966,15 @@
 							</div>
 						</div>
 						<div id="price-block">
+							<center>
+								<div id="discount-grid-border">
+									<div id="discount-grid">
+										<span style="font-size:16px;font-weight:bold;">Bulk Savings</span><br />
+										<span style="font-size:12px;color:#CF201D;">PRICE BREAKS</span><br />
+										<div id="discount-grid-display" style="padding:4px;"></div>
+									</div>			
+								</div>					
+							</center>
 							<div id="zoomDivsHeader" style="font-size:12px; font-weight:bold;">
 								<div style="width:50%;float:left;font-size:12px;font-weight:bold;text-align:left;">
 									FRONT

@@ -1076,6 +1076,19 @@ div#zoomBut {
 	z-index:5000;	
 	padding-left: 8px;
 }
+#discount-grid-border {
+	width:95%;
+	background-color:#EAEAEA;
+	padding:4px;
+}
+#discount-grid {
+	width:94%;
+	background-color:#EAEAEA;
+	font-size:12px;
+	border:2px dashed #fff;
+	border-width: 1px;
+	padding:5px;
+}
 a.cart-close {
 	position:absolute;
 	top:16px;
