@@ -1555,7 +1555,7 @@
 				if (j.toString().substring(-1) == "0" || j.toString().substring(-1) == "2" || j.toString().substring(-1) == "4" || j.toString().substring(-1) == "6" || j.toString().substring(-1) == "8") {
 					discountBackColor = "#D3D3D3";
 				}
-				var disPriceVal = parseFloat(currentPrice) - parseFloat(discounts[i].discount/100);
+				var disPriceVal = parseFloat(currentPrice) * (1 - parseFloat(discounts[i].discount/100));
 				disDiscount += '<tr><td align="center" style="color:#333333;background-color:' + discountBackColor +';">' + discounts[i].qstart + '-' + discounts[i].qend + '</td>';
 				disDiscount += '<td align="center" style="font-weight:bold;background-color:' + discountBackColor +';">$' + disPriceVal.toFixed(2) + '</td></tr>';
 				j++;
