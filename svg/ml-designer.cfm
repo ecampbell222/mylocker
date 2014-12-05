@@ -975,18 +975,14 @@
 									</div>			
 								</div>					
 							</center>
-							<div id="zoomDivsHeader" style="font-size:12px; font-weight:bold;">
-								<div style="width:50%;float:left;font-size:12px;font-weight:bold;text-align:left;">
-									FRONT
-									<div style="float:right;text-align:right;padding-right:4px;">
-										<a href="javascript:void(0);" onclick="closeCart();showFront();" style="text-decoration:none;">Edit &raquo;</a>
-									</div>
+							<div id="zoomDivsHeader" style="margin-top:7px;font-size:12px; font-weight:bold;">
+								<div style="width:50%;float:left;font-size:12px;font-weight:bold;text-align:center;">
+									<span style="margin-left:0px;">FRONT</span>
+									<a href="javascript:void(0);" onclick="closeCart();showFront();" style="text-decoration:none;margin-left:20px;">Edit &raquo;</a>
 								</div>
-								<div id="cbth" style="margin-left:50%;text-align:left;padding-left:4px;display:none;">
-									BACK
-									<div style="float:right;text-align:right;padding-right:4px;">
-										<a href="javascript:void(0);" onclick="closeCart();showBack();" style="text-decoration:none;">Edit &raquo;</a>
-									</div>
+								<div id="cbth" style="margin-left:50%;text-align:center;padding-left:4px;display:none;">
+									<span style="margin-right:20px;">BACK</span>
+									<a href="javascript:void(0);" onclick="closeCart();showBack();" style="text-decoration:none;margin-right:0px;">Edit &raquo;</a>
 								</div>
 								<div style="clear:both;"></div>
 							</div>
@@ -996,7 +992,7 @@
 											width:385px;
 											position:absolute;
 											top:0;
-											right:127px;
+											right:200px;
 											opacity:1;
 											-moz-transition: all .5s ease-in-out;
 											-ms-transition: all .5s ease-in-out;
@@ -1030,7 +1026,7 @@
 											width:385px;
 											position:absolute;
 											top:0;
-											right:0;
+											right:24px;
 											opacity:0;
 											-moz-transition: all .5s ease-in-out;
 											-ms-transition: all .5s ease-in-out;
@@ -1061,20 +1057,19 @@
 									</svg:svg>
 								</div>
 							</div>
-							<div id="addback-checkbox">
+							<div id="addback-checkbox" style="width:190px;">
 								<div style="display:inline-block;">
 									<input type="checkbox" name="addback" id="addback" onclick="toggleAddBackDesign(this);"/>
 									<label class="add-back-label" onclick="document.getElementById('addback').click();">
 										<span id="addbackLabel">Add A Back Design?<br /><span style="color:#B7B7B7; font-size:12px;">Only $<span id="back-base-price">X.XX</span> Each</span></span>
 									</label>
-									<div style="clear:both;"></div>
 								</div>
 							</div>
-							<div id="addback-checkbox-replacement">
+							<div id="addback-checkbox-replacement" style="width:190px;">
 								&nbsp;
 							</div>
 							<!--This table will go away, I'm keeping this here for now in case I need it-->
-							<table id="tbl-price-block" cellpadding="0" cellspacing="0" border="0" align="center">
+							<table id="tbl-price-block" cellpadding="0" cellspacing="0" border="0" align="center" style="display:none;">
 								<tr id="price-block-totalqty">
 									<td style="text-algin:center;"><a id="toggle-price-detail" class="v-triangle-down" href="javascript:togglePriceDetail();" /></td>
 								</tr>
@@ -1146,7 +1141,7 @@
 						<div id="totals-block-wrapper">
 							<div id="totals-block-header" style="height:41px;display:block;position:relative;font-size:10px;padding:3px 0;background-color:#ECECEC;">
 								<div style="display:inline-block; width:90%; position:relative;">
-									<div style="float:right;">
+									<div style="float:right;margin-right:30px;">
 										<table>
 											<tr><td valign="top" style="font-size:12px;" align="right">Back Designs(<span id="quan-back-designs-bottom">0</span>):</td><td width="20">
 											</td><td valign="top" style="font-size:12px;" align="left">$<span id="back-premium-bottom">0.00</span></td></tr>
@@ -1216,7 +1211,7 @@
 							<div id="top" style="width:100%;   text-align:center;   margin:0 auto;   box-shadow:0 4px 20px rgba(55, 55, 55, 0.28);   top:0;   position:absolute;   border-top-left-radius:inherit;   border-top-right-radius:inherit;">
 								<p>Your item(s) have been added to your cart!</p>
 							</div>
-							<div id="left" style="width: 70%; height: 100%; float:left; display:inline-block; margin-top:130px; margin-left: 0px; position:relative; box-sizing:border-box; /* height: 390px; */">
+							<div id="left" style="width: 90%; height: 100%; float:left; display:inline-block; margin-top:130px; margin-left: 0px; position:relative; box-sizing:border-box; /* height: 390px; */">
 								<div style="position: relative;margin: 0 auto;width: 390px;height: 208px;">
 								<img id="promoImg" style="position: absolute;top: 15px;left:120px;margin: 0;" src="_img/ATC_circle_withtext.png" />
 								<img id="shirtImg" style="position: absolute; top:0; left: 0; margin:0;" src="_img/ATC_tee.png" />

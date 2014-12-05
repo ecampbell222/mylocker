@@ -972,7 +972,7 @@ div#zoomBut {
 	overflow-y:auto;
 	overflow-x:hidden; 
 	height:47px;
-	margin-right:260px;
+	margin-right:360px;
 	border-left:1px solid silver; 
 	border-right:1px solid silver; 
 	border-bottom:1px solid silver; 
@@ -988,7 +988,7 @@ div#zoomBut {
 	overflow-y:auto;
 	overflow-x:hidden; 
 	height:398px;
-	margin-right:260px;
+	margin-right:360px;
 	/* width:70%; */ 
 	/* border-radius:10px; */ 
 	/* box-shadow:inset 0 0 55px rgba(185,185,185,0.6), 0 0 10px rgba(55,55,55,0.4); */ 
@@ -1134,7 +1134,7 @@ a.cart-close {
 	position:relative;
 	/* top:15px; */ 
 	/* height:75px; */ 
-	width:250px;
+	width:350px;
 	height:100%;
 	/* overflow:hidden; */
 	-o-transition: all .4s ease-in-out;
@@ -1178,7 +1178,7 @@ a.cart-close {
 }
 #addback-checkbox {
 	margin:0; 
-	padding:10px 20px; 
+	padding:10px 0px; 
 	/* padding-bottom:10px; */
 	background-color: #f4f4f4;
 	text-align:center;
@@ -1227,7 +1227,7 @@ a.cart-close {
 	display:none;
     position: absolute;
     left: 792px;
-    top: 380px;	
+    top: 420px;	
     z-index:10000;
 }
 #bulk-savings-start {

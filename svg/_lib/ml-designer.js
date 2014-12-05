@@ -1547,7 +1547,7 @@
 	}
 
 	function drawDiscounts() {
-		var disDiscount = '<table width="100%" cellspacing="0" cellpadding="2"><tr><td align="center" width="50%"><span style="font-size:10px;font-weight:bold;color:#333333;">PIECES</span></td><td align="center" width="50%"><span style="font-size:10px;font-weight:bold;color:#333333;">PRICE EACH</span></td></tr>';
+		var disDiscount = '<table width="100%" cellspacing="0" cellpadding="0"><tr><td align="center" width="50%"><span style="font-size:10px;font-weight:bold;color:#333333;">PIECES</span></td><td align="center" width="50%"><span style="font-size:10px;font-weight:bold;color:#333333;">PRICE EACH</span></td></tr>';
 		var j = 0;
 		for(var i=0;i<discounts.length;i++){
 			if (minDiscountLevel <= discounts[i].qstart) {
@@ -1561,6 +1561,16 @@
 				j++;
 			}
 		}
+		//Remove next 6 lines when done testing
+		/*
+		disDiscount += '<tr><td align="center" style="color:#333333;background-color:#D3D3D3;">xx-yy</td><td align="center" style="font-weight:bold;background-color:#D3D3D3;">$xx</td></tr>';
+		disDiscount += '<tr><td align="center" style="color:#333333;background-color:#EAEAEA;">xx-yy</td><td align="center" style="font-weight:bold;background-color:#EAEAEA;">$xx</td></tr>';
+		disDiscount += '<tr><td align="center" style="color:#333333;background-color:#D3D3D3;">xx-yy</td><td align="center" style="font-weight:bold;background-color:#D3D3D3;">$xx</td></tr>';
+		disDiscount += '<tr><td align="center" style="color:#333333;background-color:#EAEAEA;">xx-yy</td><td align="center" style="font-weight:bold;background-color:#EAEAEA;">$xx</td></tr>';
+		disDiscount += '<tr><td align="center" style="color:#333333;background-color:#D3D3D3;">xx-yy</td><td align="center" style="font-weight:bold;background-color:#D3D3D3;">$xx</td></tr>';
+		disDiscount += '<tr><td align="center" style="color:#333333;background-color:#EAEAEA;">xx-yy</td><td align="center" style="font-weight:bold;background-color:#EAEAEA;">$xx</td></tr>';
+		disDiscount += '<tr><td align="center" style="color:#333333;background-color:#D3D3D3;">xx-yy</td><td align="center" style="font-weight:bold;background-color:#D3D3D3;">$xx</td></tr>';
+		*/
 		disDiscount += '</table>';
 		if (i > 0) {
 			document.getElementById("discount-grid-display").innerHTML = disDiscount;
