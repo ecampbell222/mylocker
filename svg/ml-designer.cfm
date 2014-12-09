@@ -968,103 +968,116 @@
 						<div id="price-block">
 							<center>
 								<div id="discount-grid-border">
-									<div id="discount-grid">
+									<div id="discount-grid" style="text-align:center;">
 										<span style="font-size:16px;font-weight:bold;">Bulk Savings</span><br />
 										<span style="font-size:12px;color:#CF201D;">PRICE BREAKS</span><br />
 										<div id="discount-grid-display" style="padding:4px;"></div>
 									</div>			
 								</div>					
 							</center>
-							<div id="zoomDivsHeader" style="margin-top:7px;font-size:12px; font-weight:bold;">
-								<div style="width:50%;float:left;font-size:12px;font-weight:bold;text-align:center;">
+							<div id="zoomDivsHeader" style="font-size:12px; font-weight:bold;position:relative;">
+								<div style="width:37%;float:left;font-size:12px;font-weight:bold;text-align:center;margin-top:0px;margin-left:0px;">
 									<span style="margin-left:0px;">FRONT</span>
 									<a href="javascript:void(0);" onclick="closeCart();showFront();" style="text-decoration:none;margin-left:20px;">Edit &raquo;</a>
 								</div>
-								<div id="cbth" style="margin-left:50%;text-align:center;padding-left:4px;display:none;">
+								<div id="cbth" style="width:37%;float:left;font-size:12px;font-weight:bold;text-align:center;margin-top:160px;margin-left:0px;display:none;">
 									<span style="margin-right:20px;">BACK</span>
 									<a href="javascript:void(0);" onclick="closeCart();showBack();" style="text-decoration:none;margin-right:0px;">Edit &raquo;</a>
 								</div>
 								<div style="clear:both;"></div>
 							</div>
-							<div id="designs-div" style="width:100%; height:140px; position:relative;">
-								<div id="zoomDivFront" 
-									style="height:385px;
-											width:385px;
-											position:absolute;
-											top:0;
-											right:200px;
-											opacity:1;
-											-moz-transition: all .5s ease-in-out;
-											-ms-transition: all .5s ease-in-out;
-											-o-transition: all .5s ease-in-out;
-											-webkit-transition: all .5s ease-in-out;
-											transition: all .5s ease-in-out;
-											-moz-transform-origin:top right;
-											-moz-transform: scale(0.32);
-											-ms-transform-origin:top right;
-											-ms-transform: scale(0.32);
-											-o-transform-origin:top right;
-											-o-transform: scale(0.32);
-											-webkit-transform-origin:top right;
-											-webkit-transform: scale(0.32);
-											transform-origin:top right;
-											transform: scale(0.32);
-											cursor:pointer;" 
-									onclick="toggleMyZoom(this);" 
-									>	
-									<svg:svg id="zoomsvgfront" 
-											version="1.1" 
-											style="width:385px; 
-													height:385px;" 
-											viewBox="0 0 385 385" 
-											preserveAspectRatio="none" 
-											xmlns="http://www.w3.org/2000/svg">
-									</svg:svg>
-								</div>
-								<div id="zoomDivBack" 
-									style="height:385px;
-											width:385px;
-											position:absolute;
-											top:0;
-											right:24px;
-											opacity:0;
-											-moz-transition: all .5s ease-in-out;
-											-ms-transition: all .5s ease-in-out;
-											-o-transition: all .5s ease-in-out;
-											-webkit-transition: all .5s ease-in-out;
-											transition: all .5s ease-in-out;
-											-moz-transform-origin:top right;
-											-moz-transform: scale(0.32);
-											-ms-transform-origin:top right;
-											-ms-transform: scale(0.32);
-											-o-transform-origin:top right;
-											-o-transform: scale(0.32);
-											-webkit-transform-origin:top right;
-											-webkit-transform: scale(0.32);
-											transform-origin:top right;
-											transform: scale(0.32);
-											<!--- <cfif not back.recordcount>display:none;</cfif> --->
-											cursor:pointer;" 
-									onclick="toggleMyZoom(this);" 
-									>	
-									<svg:svg id="zoomsvgback" 
-											version="1.1" 
-											style="width:385px; 
-													height:385px;" 
-											viewBox="0 0 385 385" 
-											preserveAspectRatio="none" 
-											xmlns="http://www.w3.org/2000/svg">
-									</svg:svg>
+							<div id="zoomDivFront" 
+								style="height:385px;
+										width:385px;
+										position:absolute;
+										top:18px;
+										left:-237px;
+										opacity:1;
+										-moz-transition: all .5s ease-in-out;
+										-ms-transition: all .5s ease-in-out;
+										-o-transition: all .5s ease-in-out;
+										-webkit-transition: all .5s ease-in-out;
+										transition: all .5s ease-in-out;
+										-moz-transform-origin:top right;
+										-moz-transform: scale(0.32);
+										-ms-transform-origin:top right;
+										-ms-transform: scale(0.32);
+										-o-transform-origin:top right;
+										-o-transform: scale(0.32);
+										-webkit-transform-origin:top right;
+										-webkit-transform: scale(0.32);
+										transform-origin:top right;
+										transform: scale(0.32);
+										cursor:pointer;" 
+								onclick="toggleMyZoom(this);" 
+								>	
+								<svg:svg id="zoomsvgfront" 
+										version="1.1" 
+										style="width:385px; 
+												height:385px;" 
+										viewBox="0 0 385 385" 
+										preserveAspectRatio="none" 
+										xmlns="http://www.w3.org/2000/svg">
+								</svg:svg>
+							</div>
+							<div id="zoomDivBack" 
+								style="height:385px;
+										width:385px;
+										position:absolute;
+										top:190px;
+										left:-237px;
+										opacity:0;
+										-moz-transition: all .5s ease-in-out;
+										-ms-transition: all .5s ease-in-out;
+										-o-transition: all .5s ease-in-out;
+										-webkit-transition: all .5s ease-in-out;
+										transition: all .5s ease-in-out;
+										-moz-transform-origin:top right;
+										-moz-transform: scale(0.32);
+										-ms-transform-origin:top right;
+										-ms-transform: scale(0.32);
+										-o-transform-origin:top right;
+										-o-transform: scale(0.32);
+										-webkit-transform-origin:top right;
+										-webkit-transform: scale(0.32);
+										transform-origin:top right;
+										transform: scale(0.32);
+										<!--- <cfif not back.recordcount>display:none;</cfif> --->
+										cursor:pointer;" 
+								onclick="toggleMyZoom(this);" 
+								>	
+								<svg:svg id="zoomsvgback" 
+										version="1.1" 
+										style="width:385px; 
+												height:385px;" 
+										viewBox="0 0 385 385" 
+										preserveAspectRatio="none" 
+										xmlns="http://www.w3.org/2000/svg">
+								</svg:svg>
+							</div>
+							<div id="zoomDivBackBorder" 
+								style="height:115px;
+										width:115px;
+										position:absolute;
+										top:190px;
+										left:24px;
+										opacity:100%;	
+										background-color:#EAEAEA;
+										font-size:12px;
+										padding:5px;">
+								<div id="addback-checkbox" style="border:2px dashed #fff;border-width: 1px;height:93px;background-color:#EAEAEA;">
+										<label class="add-back-label" onclick="toggleAddBackDesign2('hide');">
+											<span id="addbackLabel" style="font-size:10px;"><input type="checkbox" name="addback" id="addback" />Add A<br />Back Design?<br /><br /><span style="font-size:12px;color:#CF201D;">Only $<span id="back-base-price">X.XX</span> Each</span></span>
+										</label>
 								</div>
 							</div>
-							<div id="addback-checkbox" style="width:190px;">
-								<div style="display:inline-block;">
-									<input type="checkbox" name="addback" id="addback" onclick="toggleAddBackDesign(this);"/>
-									<label class="add-back-label" onclick="document.getElementById('addback').click();">
-										<span id="addbackLabel">Add A Back Design?<br /><span style="color:#B7B7B7; font-size:12px;">Only $<span id="back-base-price">X.XX</span> Each</span></span>
+							<div id="remback-checkbox" style="height:35px;width:160px;margin-left:-1700px;margin-top:129px;font-size:10px;">
+									<label onclick="toggleAddBackDesign2('show');">
+										<input type="checkbox" name="remback" id="remback" />
+										<span>Remove Back Design</span>
 									</label>
-								</div>
-							</div>
+							</div>	
+							
 							<div id="addback-checkbox-replacement" style="width:190px;">
 								&nbsp;
 							</div>

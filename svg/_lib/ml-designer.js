@@ -1613,6 +1613,29 @@
 		}
 	}
 
+	function toggleAddBackDesign2(showHide) {
+		if (showHide == "hide") {
+			document.getElementById('remback').checked=false;	
+			document.getElementById('zoomDivBackBorder').style.left="-600px";
+			document.getElementById('remback-checkbox').style.marginLeft="3px";
+		}else{
+			document.getElementById('addback').checked=false;
+			document.getElementById('zoomDivBackBorder').style.left="24px";
+			document.getElementById('remback-checkbox').style.marginLeft="-1700px";
+		}
+
+		initControls();
+		setPrice();		
+		/*
+			Set check box to checked
+			Set opacity to 0 for border
+			Create another hidden div, opacity 0, Remove Back Design with checkbox checked
+			Code this function to show/hide based on showHide function
+			Clear history before testing
+		*/
+
+	}
+
 	function showBack() {
 //console.log("Function showBack...");
 
@@ -1876,6 +1899,7 @@
 			document.getElementById('cart-page-1').style.left='-100%';
 		document.getElementById('cart-page-2').style.left='0';
 	}
+
 
 	function setActivity(s,scId,pCat) {
 		var tmpurl=url;

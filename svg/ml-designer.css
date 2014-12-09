@@ -1077,7 +1077,8 @@ div#zoomBut {
 	padding-left: 8px;
 }
 #discount-grid-border {
-	width:95%;
+	width:60%;
+	float:right;
 	background-color:#EAEAEA;
 	padding:4px;
 }
@@ -1134,7 +1135,7 @@ a.cart-close {
 	position:relative;
 	/* top:15px; */ 
 	/* height:75px; */ 
-	width:350px;
+	width:450px;
 	height:100%;
 	/* overflow:hidden; */
 	-o-transition: all .4s ease-in-out;
