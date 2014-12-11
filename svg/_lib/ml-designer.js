@@ -66,6 +66,7 @@
 	var personalizationNameChoices=[];
 	var cartRowCount=0;						// Always contains the number of ADDITIONAL cart rows to help with tab key control
 	var isExtActSelector=false;				// will be true if the external activity selector is displayed
+	var apiHideBulk = getQueryVariable('hideBulk');
 
 	if (typeof globalIsDev == "undefined") { globalIsDev = 0; }
 
@@ -74,6 +75,24 @@
 	function svginit(evt) {
 		// do any initialization things here
 		SVGRoot = document.getElementById('svg');
+	}
+
+	//This could change, not sure how the url is going to look
+	//example: http://dev.mylocker.net/my/shop/yoyo/product-2010-2000-DarkChocolate_2283_22.html?hideBulk=1
+	function getQueryVariable(variable) {
+		var query = window.location.search.substring(1);
+		var vars = query.split("&");
+		for (var i=0;i<vars.length;i++) {
+			var pair = vars[i].split("=");
+			if(pair[0] == "qs"){
+				var pair2 = pair[1].split("%26");
+				for (var j=0;j<pair2.length;j++) {
+					var pair3 = pair2[j].split("%3D");
+					if (pair3[0] == variable) { return pair3[1]; }
+				}
+			}
+		}
+		return(false);
 	}
 
 	function setStage() {	//// CALLED FROM DOCUMENT ONLOAD
@@ -2832,6 +2851,9 @@
 		}
 		//Check the quantity, if greater than 6 change red text
 		var tDiscount = tPrice * iDiscount;
+		if (apiHideBulk == "1") {
+			tDiscount = 0;
+		}
 		var oTotal = tPrice - tDiscount;
 		var oSizePremium = tSizePremium;
 		var oSizePremiumDiscounted = (1-iDiscount)*tSizePremium;
@@ -2862,6 +2884,13 @@
 
 		//document.getElementById('total-discount').innerHTML = parseFloat(tDiscount).toFixed(2).toString(); //To Remove
 		if (tDiscount > 0) document.getElementById('price-block-totaldiscount').style.display = '';
+		if (tDiscount > 0) {
+			document.getElementById('you-save').style.display = 'block';
+			document.getElementById('you-save-val').innerHTML = '$' + parseFloat(tDiscount).toFixed(2).toString();
+		}else{
+			document.getElementById('you-save').style.display = 'none';
+		}
+
 
 		//document.getElementById('order-total').innerHTML = parseFloat(oTotal).toFixed(2).toString(); //To Remove
 		document.getElementById('order-total-bottom').innerHTML = parseFloat(oTotal).toFixed(2).toString();

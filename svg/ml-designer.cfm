@@ -1067,7 +1067,7 @@
 										padding:5px;">
 								<div id="addback-checkbox" style="border:2px dashed #fff;border-width: 1px;height:93px;background-color:#EAEAEA;">
 										<label class="add-back-label" onclick="toggleAddBackDesign2('hide');">
-											<span id="addbackLabel" style="font-size:10px;"><input type="checkbox" name="addback" id="addback" />Add A<br />Back Design?<br /><br /><span style="font-size:12px;color:#CF201D;">Only $<span id="back-base-price">X.XX</span> Each</span></span>
+											<span id="addbackLabel" style="font-size:11px;color:#444444;font-style: italic;"><input type="checkbox" name="addback" id="addback" />Add A<br />Back Design?<br /><br /><span style="font-size:13px;color:#CF201D;">Only $<span id="back-base-price">X.XX</span> Each</span></span>
 										</label>
 								</div>
 							</div>
@@ -1080,6 +1080,13 @@
 							
 							<div id="addback-checkbox-replacement" style="width:190px;">
 								&nbsp;
+							</div>
+
+							<div id="you-save" style="height:85px;width:160px;left:120px;top:342px;border:0px solid #555555;text-align:center;position:absolute;display:none;">
+								<span style="font-size:14px;color:#000000;">You've Saved</span><br />
+								<span id="you-save-val" style="font-size:28px;color:#CF201D;font-weight:bold;"></span>
+								<hr />
+								<span style="font-size:14px;color:#000000;font-style:italic;">Add More, Save More!</span>
 							</div>
 							<!--This table will go away, I'm keeping this here for now in case I need it-->
 							<table id="tbl-price-block" cellpadding="0" cellspacing="0" border="0" align="center" style="display:none;">
