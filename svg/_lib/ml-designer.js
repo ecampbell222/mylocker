@@ -66,10 +66,10 @@
 	var personalizationNameChoices=[];
 	var cartRowCount=0;						// Always contains the number of ADDITIONAL cart rows to help with tab key control
 	var isExtActSelector=false;				// will be true if the external activity selector is displayed
-	var apiHideBulk = getQueryVariable('hideBulk');
+
+//globalHideBulk - To Use, figure out how to test, probably just set default to 1
 
 	if (typeof globalIsDev == "undefined") { globalIsDev = 0; }
-
 	if (globalSkuPrice == "" || globalSkuPrice == "0.00") { isBulkEnabled = false; }
 
 	function svginit(evt) {
@@ -79,22 +79,6 @@
 
 	//This could change, not sure how the url is going to look
 	//example: http://dev.mylocker.net/my/shop/yoyo/product-2010-2000-DarkChocolate_2283_22.html?hideBulk=1
-	function getQueryVariable(variable) {
-		var query = window.location.search.substring(1);
-		var vars = query.split("&");
-		for (var i=0;i<vars.length;i++) {
-			var pair = vars[i].split("=");
-			if(pair[0] == "qs"){
-				var pair2 = pair[1].split("%26");
-				for (var j=0;j<pair2.length;j++) {
-					var pair3 = pair2[j].split("%3D");
-					if (pair3[0] == variable) { return pair3[1]; }
-				}
-			}
-		}
-		return(false);
-	}
-
 	function setStage() {	//// CALLED FROM DOCUMENT ONLOAD
 		setSizes();
 		setDiscounts();
@@ -866,7 +850,7 @@
 			}
 		}
 
-		if (nfLength > 2 && document.getElementById('addback').checked) {
+		if (nfLength > 2 && document.getElementById('addback2').checked) {
 			if (nfLength > 2) document.getElementById('ncWrapper').style.display = 'none';
 			else document.getElementById('ncWrapper').style.display = 'block';
 			document.getElementById('btn-add-to-cart').onclick = popCart;
@@ -940,7 +924,7 @@
 			if (dm.hasTeamName) ftnMaxChars = parseInt(dm.getTeamName().getTextMaxChars());
 			if (dm.hasTeamNum) ftmMaxChars = parseInt(dm.getTeamNum().getTextMaxChars());
 		}
-		if (typeof currentBackDesign !== 'undefined' && document.getElementById('addback').checked && numBackProducts > 0) {
+		if (typeof currentBackDesign !== 'undefined' && document.getElementById('addback2').checked && numBackProducts > 0) {
 			cbt.style.opacity = '1';
 			cbth.style.display = 'block';
 			if (backdm.hasTeamName) btnMaxChars = parseInt(backdm.getTeamName().getTextMaxChars());
@@ -963,7 +947,7 @@
 			if (dm.hasTeamName) showCartNameFields = true;
 			if (dm.hasTeamNum) showCartNumFields = true;
 		}
-		if (typeof currentBackDesign !== 'undefined' && document.getElementById('addback').checked && numBackProducts > 0) {
+		if (typeof currentBackDesign !== 'undefined' && document.getElementById('addback2').checked && numBackProducts > 0) {
 			if (backdm.hasTeamName) showCartNameFields = true;
 			if (backdm.hasTeamNum) showCartNumFields = true;
 		}
@@ -990,6 +974,9 @@
 			document.getElementById('frontViewBut').style.display='none';
 			if (numBackProducts > 0) {
 				document.getElementById('backViewBut').style.display='block';
+			}else{
+				document.getElementById('zoomDivBackBorder').style.left="-600px";
+				document.getElementById('zoomDivBack').style.left="-1200px";
 			}			
 			if (typeof currentDesign !== 'undefined') {
 				if (dm.hasTopText) {
@@ -1475,9 +1462,9 @@
 
 	function setAddBackDesignUnchecked(recalc) {
 		recalc = (typeof recalc === 'boolean') ? recalc : false;
-		var cb1 = document.getElementById('addback');
+		//var cb1 = document.getElementById('addback');
 		var cb2 = document.getElementById('addback2');
-		if (cb1 !== null) { cb1.checked = false; }
+		//if (cb1 !== null) { cb1.checked = false; }
 		if (cb2 !== null) { cb2.checked = false; }
 		if (recalc) {
 			initControls();
@@ -1589,6 +1576,7 @@
 		disDiscount += '<tr><td align="center" style="color:#333333;background-color:#D3D3D3;">xx-yy</td><td align="center" style="font-weight:bold;background-color:#D3D3D3;">$xx</td></tr>';
 		disDiscount += '<tr><td align="center" style="color:#333333;background-color:#EAEAEA;">xx-yy</td><td align="center" style="font-weight:bold;background-color:#EAEAEA;">$xx</td></tr>';
 		disDiscount += '<tr><td align="center" style="color:#333333;background-color:#D3D3D3;">xx-yy</td><td align="center" style="font-weight:bold;background-color:#D3D3D3;">$xx</td></tr>';
+		disDiscount += '<tr><td align="center" style="color:#333333;background-color:#EAEAEA;">xx-yy</td><td align="center" style="font-weight:bold;background-color:#EAEAEA;">$xx</td></tr>';
 		*/
 		disDiscount += '</table>';
 		if (i > 0) {
@@ -1614,8 +1602,8 @@
 			else alert("unsuccessful");
 		}
 	}
-
-	function toggleAddBackDesign(cbAddBackDesign) {
+/*
+	function toggleAddBackDesignOld(cbAddBackDesign) {
 		if (cbAddBackDesign.checked) {
 			if (typeof currentBackDesign === 'undefined') {
 				cbAddBackDesign.checked = false;
@@ -1631,17 +1619,25 @@
 			setPrice();
 		}
 	}
+*/
+	function toggleAddBackDesign(showHide) {
+			if (typeof(showHide) == "object") {
+				if (showHide.checked) {
+					showHide = "hide";
+				}
+			}
 
-	function toggleAddBackDesign2(showHide) {
-		if (showHide == "hide") {
-			document.getElementById('remback').checked=false;	
-			document.getElementById('zoomDivBackBorder').style.left="-600px";
-			document.getElementById('remback-checkbox').style.marginLeft="3px";
-		}else{
-			document.getElementById('addback').checked=false;
-			document.getElementById('zoomDivBackBorder').style.left="24px";
-			document.getElementById('remback-checkbox').style.marginLeft="-1700px";
-		}
+			if (showHide == "hide") {
+				document.getElementById('zoomDivBackBorder').style.left="-600px";
+				document.getElementById('remback').style.left="20px";
+				document.getElementById('addback2').checked=true;
+			}else{
+				document.getElementById('addback').checked=false;
+				document.getElementById('addback2').checked=false;
+				document.getElementById('zoomDivBackBorder').style.left="24px";
+				document.getElementById('remback').style.left="-1700px";
+			}
+
 
 		initControls();
 		setPrice();		
@@ -2291,9 +2287,9 @@
 		if (typeof val !== 'boolean') {
 			return;
 		}
-		cb1 = document.getElementById('addback');
+		//cb1 = document.getElementById('addback');
 		cb2 = document.getElementById('addback2');
-		cb1.checked = val;
+		//cb1.checked = val;
 		cb2.checked = val;
 	}
 
@@ -2305,9 +2301,9 @@
 			else document.getElementById('teamnum').value = options.teamNum; 
 			refreshActiveFront(options);
 			refreshActiveBack(options);
-			if (!document.getElementById('addback').checked) {
-				document.getElementById('addback').checked = true;
-				toggleAddBackDesign(document.getElementById('addback'));
+			if (!document.getElementById('addback2').checked) {
+				document.getElementById('addback2').checked = true;
+				toggleAddBackDesign(document.getElementById('addback2'));
 			}
 			setPrice();
 		} else {
@@ -2811,7 +2807,7 @@
 		var rBackBasePrice = 6.95;
 		var backIsLogoDesign = (backdm.isLogoDesign && typeof backdm.isLogoDesign() === 'boolean') ? backdm.isLogoDesign() : false;
 		var hasBack = numBackProducts > 0 ? true : false;
-		var addBack = document.getElementById('addback').checked;
+		var addBack2 = document.getElementById('addback2').checked;
 		var cRows = document.getElementsByClassName('cp-row');
 		var cRowsLength = cRows.length-1;	// leave off the "add-row" row
 		for (var i=1; i<cRowsLength; i++) {
@@ -2825,7 +2821,7 @@
 			var rSize = cRows[i].getElementsByClassName('cart-size-field')[0][cRows[i].getElementsByClassName('cart-size-field')[0].selectedIndex].label;
 			var rName = cRows[i].getElementsByClassName('cart-name-field')[0].value;
 			var rNum = cRows[i].getElementsByClassName('cart-number-field')[0].value;
-			var rUnitBackPremium = (hasBack && addBack && ((rName.length || rNum.length) || backIsLogoDesign)) ? rBackBasePrice : 0;
+			var rUnitBackPremium = (hasBack && addBack2 && ((rName.length || rNum.length) || backIsLogoDesign)) ? rBackBasePrice : 0;
 			var rUnitSizePremium = rSKU.length > 0 ? parseFloat(skus['sku_'+rSKU].sizePremium) : 0;
 			var rUnitPrice = rBasePrice + rUnitBackPremium + rUnitSizePremium;
 			var rUnitDiscounted = (1-iDiscount)*rUnitPrice;
@@ -2851,9 +2847,6 @@
 		}
 		//Check the quantity, if greater than 6 change red text
 		var tDiscount = tPrice * iDiscount;
-		if (apiHideBulk == "1") {
-			tDiscount = 0;
-		}
 		var oTotal = tPrice - tDiscount;
 		var oSizePremium = tSizePremium;
 		var oSizePremiumDiscounted = (1-iDiscount)*tSizePremium;
@@ -2941,7 +2934,7 @@
 //console.log(arrCartRows);
 		var pId = selectedProduct;
 		var dId = currentFrontDesignId;
-		var bdId = (document.getElementById('addback').checked && numBackProducts) ? currentBackDesignId : '';
+		var bdId = (document.getElementById('addback2').checked && numBackProducts) ? currentBackDesignId : '';
 //console.log("bdid: "+bdId);
 		var tt=document.getElementById('toptext').value;
 		var bt=document.getElementById('bottomtext').value;

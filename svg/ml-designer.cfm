@@ -49,6 +49,7 @@
 	<cfparam name="url.mapping_city" 				default="" />
 	<cfparam name="url.fullSizeProductImagesOnly"	default="1" />
 	<cfparam name="url.qs"							default="" />
+	<cfparam name="url.apiHideBulk"				default="0" />
 
 	<!--- fix missing colors --->
 	<cfif len(url.primary) neq 10 or len(url.second) neq 10>
@@ -188,6 +189,7 @@
 	var globalG 						= '<cfoutput>#url.g#</cfoutput>';
 	var globalShowLogoUploadThumb 		= '<cfoutput>#url.showLogoUploadThumb#</cfoutput>';
 	var globalLogoUploadThumbPosition 	= '<cfoutput>#url.logoUploadThumbPosition#</cfoutput>';
+	var globalHideBulk			 		= '<cfoutput>#url.apiHideBulk#</cfoutput>';
 	var honorDocCookies 				= '<cfoutput>#url.honorDocCookies#</cfoutput>';
 	var fullSizeProductImagesOnly 		= '<cfoutput>#url.fullSizeProductImagesOnly#</cfoutput>';
 	//]]>
@@ -984,6 +986,7 @@
 									<span style="margin-right:20px;">BACK</span>
 									<a href="javascript:void(0);" onclick="closeCart();showBack();" style="text-decoration:none;margin-right:0px;">Edit &raquo;</a>
 								</div>
+								<div id="remback" style="position:absolute;top:320px;left:-1700px;"><a href="javascript:toggleAddBackDesign('show');" style="font-size:12px;font-weight:bold;text-decoration:none;">Remove Back Design &raquo;</a></div>												
 								<div style="clear:both;"></div>
 							</div>
 							<div id="zoomDivFront" 
@@ -1066,23 +1069,17 @@
 										font-size:12px;
 										padding:5px;">
 								<div id="addback-checkbox" style="border:2px dashed #fff;border-width: 1px;height:93px;background-color:#EAEAEA;">
-										<label class="add-back-label" onclick="toggleAddBackDesign2('hide');">
+										<label class="add-back-label" onclick="toggleAddBackDesign('hide');">
 											<span id="addbackLabel" style="font-size:11px;color:#444444;font-style: italic;"><input type="checkbox" name="addback" id="addback" />Add A<br />Back Design?<br /><br /><span style="font-size:13px;color:#CF201D;">Only $<span id="back-base-price">X.XX</span> Each</span></span>
 										</label>
 								</div>
 							</div>
-							<div id="remback-checkbox" style="height:35px;width:160px;margin-left:-1700px;margin-top:129px;font-size:10px;">
-									<label onclick="toggleAddBackDesign2('show');">
-										<input type="checkbox" name="remback" id="remback" />
-										<span>Remove Back Design</span>
-									</label>
-							</div>	
-							
+			
 							<div id="addback-checkbox-replacement" style="width:190px;">
 								&nbsp;
 							</div>
 
-							<div id="you-save" style="height:85px;width:160px;left:120px;top:342px;border:0px solid #555555;text-align:center;position:absolute;display:none;">
+							<div id="you-save" style="height:85px;width:160px;left:280px;top:332px;border:0px solid #555555;text-align:center;position:absolute;display:none;">
 								<span style="font-size:14px;color:#000000;">You've Saved</span><br />
 								<span id="you-save-val" style="font-size:28px;color:#CF201D;font-weight:bold;"></span>
 								<hr />
