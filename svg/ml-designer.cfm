@@ -49,7 +49,8 @@
 	<cfparam name="url.mapping_city" 				default="" />
 	<cfparam name="url.fullSizeProductImagesOnly"	default="1" />
 	<cfparam name="url.qs"							default="" />
-	<cfparam name="url.apiHideBulk"				default="0" />
+	<cfparam name="url.apiHideBulk"					default="0" />
+	<cfparam name="url.apiHideViewMore"				default="0" />
 
 	<!--- fix missing colors --->
 	<cfif len(url.primary) neq 10 or len(url.second) neq 10>
@@ -190,6 +191,7 @@
 	var globalShowLogoUploadThumb 		= '<cfoutput>#url.showLogoUploadThumb#</cfoutput>';
 	var globalLogoUploadThumbPosition 	= '<cfoutput>#url.logoUploadThumbPosition#</cfoutput>';
 	var globalHideBulk			 		= '<cfoutput>#url.apiHideBulk#</cfoutput>';
+	var globalHideViewMore		 		= '<cfoutput>#url.apiHideViewMore#</cfoutput>';
 	var honorDocCookies 				= '<cfoutput>#url.honorDocCookies#</cfoutput>';
 	var fullSizeProductImagesOnly 		= '<cfoutput>#url.fullSizeProductImagesOnly#</cfoutput>';
 	//]]>
@@ -502,7 +504,7 @@
 				<div id="action-column-price"><span id="acp-value"></span></div>
 				<div id="action-column-price-each">
 					PRICE EACH
-					<a href="javascript:void(0);" onclick="popCart();gaTrackEvent('Wholesale','Bulk Discount Click');" style="padding-top:8px;display:block;"><img src="_img/btn_bulk_pricing-109x26.gif" border="0" width="109" height="26" /></a>
+					<a href="javascript:void(0);" onclick="popCart();gaTrackEvent('Wholesale','Bulk Discount Click');" style="padding-top:8px;display:block;" id="bulk-priceing-button"><img src="_img/btn_bulk_pricing-109x26.gif" border="0" width="109" height="26" /></a>
 				</div>
 				<div id="ncWrapper">
 					<div id="ncSize">
@@ -982,7 +984,7 @@
 									<span style="margin-left:0px;">FRONT</span>
 									<a href="javascript:void(0);" onclick="closeCart();showFront();" style="text-decoration:none;margin-left:20px;">Edit &raquo;</a>
 								</div>
-								<div id="cbth" style="width:37%;float:left;font-size:12px;font-weight:bold;text-align:center;margin-top:160px;margin-left:0px;display:none;">
+								<div id="cbth" style="position:absolute;top:173px;left:2px;width:37%;font-size:12px;font-weight:bold;text-align:center;display:none;">
 									<span style="margin-right:20px;">BACK</span>
 									<a href="javascript:void(0);" onclick="closeCart();showBack();" style="text-decoration:none;margin-right:0px;">Edit &raquo;</a>
 								</div>

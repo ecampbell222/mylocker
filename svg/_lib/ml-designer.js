@@ -229,8 +229,12 @@
 		sportNameChoices = getSportNameChoices();
 		personalizationNameChoices = getPersonalizations();
 
+		//Check api call to see if bulk pricing should display
+		if (globalHideBulk == '1') {
+			document.getElementById("bulk-priceing-button").style.display = "none";
+		}
 		// initialize the More Products button
-		if (globalSkuPrice !== '0.00') {
+		if (globalSkuPrice !== '0.00' && globalHideViewMore != '1') {
 			btnMoreProducts.style.display = '';
 			document.getElementById('action-column').style.marginTop = '3px';
 		}
@@ -1522,16 +1526,21 @@
 		var catDiscountCol=6;
 		discounts = [];
 		minDiscountLevel=0;
-		for (var i=0;i<discountData.DATA.length;i++){
-			discounts.push({
-				qstart : discountData.DATA[i][0],
-				qend : discountData.DATA[i][1],
-				discount : discountData.DATA[i][prodDiscountCol] ? discountData.DATA[i][prodDiscountCol] : (discountData.DATA[i][catDiscountCol] ? discountData.DATA[i][catDiscountCol] : 0)
-			})	
-			if (minDiscountLevel == 0 && discounts[i].discount > 0) minDiscountLevel=discounts[i].qstart;
-		}
+		if (globalHideBulk == 1) {
+			document.getElementById("discount-grid-border").style.display = "none";
+			setDiscountText(0,'');
+		}else{
+			for (var i=0;i<discountData.DATA.length;i++){
+				discounts.push({
+					qstart : discountData.DATA[i][0],
+					qend : discountData.DATA[i][1],
+					discount : discountData.DATA[i][prodDiscountCol] ? discountData.DATA[i][prodDiscountCol] : (discountData.DATA[i][catDiscountCol] ? discountData.DATA[i][catDiscountCol] : 0)
+				})	
+				if (minDiscountLevel == 0 && discounts[i].discount > 0) minDiscountLevel=discounts[i].qstart;
+			}
 
-		setDiscountText(1,'');
+			setDiscountText(1,'');
+		}
 	}
 
 	function setDiscountText(qty, productName) {
