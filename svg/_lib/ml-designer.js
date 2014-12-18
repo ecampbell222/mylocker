@@ -1561,6 +1561,11 @@
 		return 0;
 	}
 
+	function blankDiscounts() {
+		document.getElementById("discount-grid-border").style.display = "none";
+		document.getElementById("discount-grid-display").innerHTML = "";
+	}
+
 	function drawDiscounts() {
 		var disDiscount = '<table width="100%" cellspacing="0" cellpadding="0"><tr><td align="center" width="50%"><span style="font-size:10px;font-weight:bold;color:#333333;">PIECES</span></td><td align="center" width="50%"><span style="font-size:10px;font-weight:bold;color:#333333;">PRICE EACH</span></td></tr>';
 		var j = 0;
@@ -1589,6 +1594,7 @@
 		*/
 		disDiscount += '</table>';
 		if (i > 0) {
+			document.getElementById("discount-grid-border").style.display = "block";
 			document.getElementById("discount-grid-display").innerHTML = disDiscount;
 		}
 		
@@ -2864,6 +2870,7 @@
 		var rBasePriceDiscounted = (1-iDiscount)*rBasePrice;
 		var rBackBasePriceDiscounted = (1-iDiscount)*rBackBasePrice;
 		setDiscountText(tQuan, passProdName);
+		blankDiscounts();
 		drawDiscounts();
 
 		document.getElementById('back-base-price').innerHTML = parseFloat(rBackBasePriceDiscounted).toFixed(2).toString();
