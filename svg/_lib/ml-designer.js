@@ -1212,7 +1212,7 @@
 		setProduct('',_prod); //move below if possible
 		if (newDesignTypeId != globalDesignTypeID) {
 			globalDesignTypeID = newDesignTypeId;
-			setDesigns();
+			setDesigns(); 
 		} else {
 			initControls();			
 		}

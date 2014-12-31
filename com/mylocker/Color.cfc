@@ -151,6 +151,7 @@
 		
 	</cffunction>
 	
+	
 	<cffunction name="getBestPrintColors2" access="public" returntype="Struct">
 		<cfargument name="pcolor" required="false" default="000000" hint="Product Color" />
 		<cfargument name="scolor1" required="false" default="000000" hint="Shop color 1" />

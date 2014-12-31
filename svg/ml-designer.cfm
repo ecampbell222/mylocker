@@ -331,7 +331,6 @@
 	};
 
 	var sizeChartName = '#front.sizechart#';
-
 	</cfoutput>
 
 	//]]>
