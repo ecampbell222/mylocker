@@ -294,7 +294,15 @@
 			}
 		}
 
+		showHideColors();
 		loadXMLDoc();
+	}
+
+	function showHideColors() {
+		for (var i = 0; i < colConv.length; i++) {
+			//split on comma, 0 = origColor, 1 = convColor
+		    //alert(colConv[i]);
+		}		
 	}
 
 	function kd(_this,_e) {

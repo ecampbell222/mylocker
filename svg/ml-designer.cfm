@@ -85,7 +85,8 @@
 	<cfset prod=createobject("component","com.products.product") />
 	<cfset acts=createobject("component","com.mylocker.activity").list_v2(url.sc_id,url.shop_category_id) />
 	<cfset productViews=prod.getProductViewTypes(url.category) />
-	<cfset clrs=createobject("component","com.mylocker.color").getColorsOrdered('','','','','','','','','','','','',url.primary,url.second,url.third,url.design_type_id) />
+	<cfset clrs=createobject("component","com.mylocker.color").getColorsOrdered('','','','','','','','','','','','',url.primary,url.second,url.third,'1') />
+	<cfset clrsconv=createobject("component","com.mylocker.color").getColorsConverted() />	
 	<cfset products=prod.getProduct(1,url.category,url.prodid,url.prodid1,url.prodid2,url.prodid3,url.prodid4,url.prodid5,url.prodid6,url.prodid7,url.prodid8,url.prodid9,url.prodid10) />
 	<cfset backproducts=prod.getProduct(2,url.category,url.prodid,url.prodid1,url.prodid2,url.prodid3,url.prodid4,url.prodid5,url.prodid6,url.prodid7,url.prodid8,url.prodid9,url.prodid10) />
 	
@@ -329,6 +330,10 @@
 		<cfloop query="colors">hex_#hex#	: '#descr#'<cfif currentrow neq recordcount>,</cfif>
 		</cfloop>
 	};
+	var colConv=[
+		<cfloop query="clrsconv">"#clrsconv.origHex#,#clrsconv.convHex#"<cfif currentrow neq recordcount>,</cfif>
+		</cfloop>
+	];
 
 	var sizeChartName = '#front.sizechart#';
 	</cfoutput>

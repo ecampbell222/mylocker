@@ -16,6 +16,14 @@
 		
 	</cffunction>
 
+	<cffunction access="remote" name="getColorsConverted" returntype="Query" >
+		<cfquery datasource="#dsn#" name="qryColorsConverted">
+			SELECT origHex, convHex FROM colorEmbConvert
+		</cfquery>
+
+		<cfreturn qryColorsConverted />
+	</cffunction>
+
 	<cffunction access="remote" name="getColorsOrdered" returntype="Query" >
 		<cfargument name="store_id" required="false" default="" />
 		<cfargument name="store_category" required="false" default="" />
@@ -151,7 +159,7 @@
 		
 	</cffunction>
 	
-	
+
 	<cffunction name="getBestPrintColors2" access="public" returntype="Struct">
 		<cfargument name="pcolor" required="false" default="000000" hint="Product Color" />
 		<cfargument name="scolor1" required="false" default="000000" hint="Shop color 1" />
