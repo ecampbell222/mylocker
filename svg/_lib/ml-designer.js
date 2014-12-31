@@ -1209,13 +1209,15 @@
 			}
 			*/
 		}
-		setProduct('',_prod);
+		setProduct('',_prod); //move below if possible
 		if (newDesignTypeId != globalDesignTypeID) {
 			globalDesignTypeID = newDesignTypeId;
 			setDesigns();
 		} else {
 			initControls();			
 		}
+		//showhide color here
+
 		setPrice();
 	}
 
