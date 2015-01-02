@@ -298,11 +298,52 @@
 		loadXMLDoc();
 	}
 
-	function showHideColors() {
-		for (var i = 0; i < colConv.length; i++) {
-			//split on comma, 0 = origColor, 1 = convColor
-		    //alert(colConv[i]);
+	function doShowHideColor(checkColor, showHideVal) {
+		if (document.getElementById('primarydc_' + checkColor)) {
+			document.getElementById('primarydc_' + checkColor).style.display = showHideVal;
+		}
+		if (document.getElementById('seconddc_' + checkColor)) {
+			document.getElementById('seconddc_' + checkColor).style.display = showHideVal;
+		}
+		if (document.getElementById('primary_' + checkColor)) {
+			document.getElementById('primary_' + checkColor).style.display = showHideVal;
+		}
+		if (document.getElementById('second_' + checkColor)) {
+			document.getElementById('second_' + checkColor).style.display = showHideVal;
 		}		
+	}
+
+	function showHideColors() {
+		var newSelectedDC1Hex = selectedDC1Hex;
+		var newSelectedDC2Hex = selectedDC2Hex;
+
+		for (var i = 0; i < colConv.length; i++) {
+			var splHex = colConv[i].split(',');
+			var arrOrigColor = splHex[0];
+			var arrConvColor = splHex[1];
+
+			if (globalDesignTypeID == 3) { //Is Embroidery
+				doShowHideColor(arrOrigColor, 'none');
+				if (selectedDC1Hex == arrOrigColor) {
+					newSelectedDC1Hex = arrConvColor;
+				}
+				if (selectedDC2Hex == arrOrigColor) {
+					newSelectedDC2Hex = arrConvColor;
+				}				
+			}else{
+				doShowHideColor(arrOrigColor, 'block');
+				if (selectedDC1Hex == arrConvColor) {
+					newSelectedDC1Hex = arrOrigColor;
+				}
+				if (selectedDC2Hex == arrConvColor) {
+					newSelectedDC2Hex = arrOrigColor;
+				}	
+			}	
+		}		
+
+		//Need to find desc, figure out what "this" is
+		//setDC1(this,newSelectedDC1Hex,'');
+		//setDC2(this,newSelectedDC2Hex,'');
 	}
 
 	function kd(_this,_e) {
@@ -1123,6 +1164,7 @@
 		backproducts 		= {};
 		numBackProducts 	= bp.DATA.length;
 		removeAllColorSquares();
+
 		if (bp.DATA.length) {
 			var col = new Object();
 			for (var i=0; i < bp.COLUMNS.length; i++) {
@@ -1224,8 +1266,7 @@
 		} else {
 			initControls();			
 		}
-		//showhide color here
-
+		showHideColors();
 		setPrice();
 	}
 
