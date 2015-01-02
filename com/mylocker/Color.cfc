@@ -18,7 +18,10 @@
 
 	<cffunction access="remote" name="getColorsConverted" returntype="Query" >
 		<cfquery datasource="#dsn#" name="qryColorsConverted">
-			SELECT origHex, convHex FROM colorEmbConvert
+			SELECT origHex, convHex, 
+			(select top 1 descr from Color where hex = origHex) as origDesc,
+			(select top 1 descr from Color where hex = convHex) as convDesc
+			FROM colorEmbConvert
 		</cfquery>
 
 		<cfreturn qryColorsConverted />

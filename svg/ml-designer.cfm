@@ -330,8 +330,12 @@
 		<cfloop query="colors">hex_#hex#	: '#descr#'<cfif currentrow neq recordcount>,</cfif>
 		</cfloop>
 	};
+	var dcBasic=[
+		<cfloop query="colors">"#hex#"<cfif currentrow neq recordcount>,</cfif>
+		</cfloop>
+	];	
 	var colConv=[
-		<cfloop query="clrsconv">"#clrsconv.origHex#,#clrsconv.convHex#"<cfif currentrow neq recordcount>,</cfif>
+		<cfloop query="clrsconv">"#clrsconv.origHex#|#clrsconv.convHex#|#clrsconv.origDesc#|#clrsconv.convDesc#"<cfif currentrow neq recordcount>,</cfif>
 		</cfloop>
 	];
 

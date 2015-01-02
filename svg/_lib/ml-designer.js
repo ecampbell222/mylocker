@@ -66,7 +66,8 @@
 	var personalizationNameChoices=[];
 	var cartRowCount=0;						// Always contains the number of ADDITIONAL cart rows to help with tab key control
 	var isExtActSelector=false;				// will be true if the external activity selector is displayed
-
+	var newSelectedDC1Hex = '';
+	var newSelectedDC2Hex = '';
 //globalHideBulk - To Use, figure out how to test, probably just set default to 1
 
 	if (typeof globalIsDev == "undefined") { globalIsDev = 0; }
@@ -294,57 +295,113 @@
 			}
 		}
 
-		showHideColors();
+		showHideColors(0);
 		loadXMLDoc();
 	}
 
-	function doShowHideColor(checkColor, showHideVal) {
-		if (document.getElementById('primarydc_' + checkColor)) {
-			document.getElementById('primarydc_' + checkColor).style.display = showHideVal;
-		}
-		if (document.getElementById('seconddc_' + checkColor)) {
-			document.getElementById('seconddc_' + checkColor).style.display = showHideVal;
-		}
-		if (document.getElementById('primary_' + checkColor)) {
-			document.getElementById('primary_' + checkColor).style.display = showHideVal;
-		}
-		if (document.getElementById('second_' + checkColor)) {
-			document.getElementById('second_' + checkColor).style.display = showHideVal;
-		}		
-	}
+	//The following function hides/shows colors based on dig or emb, 
+	//also autoselects prev selected color when product is changed
+	function showHideColors(isSetProduct) {
+		var newSelectedDesc1 = "";
+		var newSelectedDesc2 = "";
 
-	function showHideColors() {
-		var newSelectedDC1Hex = selectedDC1Hex;
-		var newSelectedDC2Hex = selectedDC2Hex;
+		if (isSetProduct == 0) {
+			newSelectedDC1Hex = getCurrentSelectedColor(1);
+			newSelectedDC2Hex = getCurrentSelectedColor(2);
+		}
 
+		//Loop through colors that are not in embroidery
 		for (var i = 0; i < colConv.length; i++) {
-			var splHex = colConv[i].split(',');
+			var splHex = colConv[i].split('|');
 			var arrOrigColor = splHex[0];
 			var arrConvColor = splHex[1];
+			var arrOrigDesc = splHex[2];
+			var arrConvDesc = splHex[3];
 
 			if (globalDesignTypeID == 3) { //Is Embroidery
-				doShowHideColor(arrOrigColor, 'none');
-				if (selectedDC1Hex == arrOrigColor) {
+				doShowHideColor(arrOrigColor, 'none'); //Remove colors
+				//If selected color does not exist, use alt color
+				if (newSelectedDC1Hex == arrOrigColor) {
 					newSelectedDC1Hex = arrConvColor;
 				}
-				if (selectedDC2Hex == arrOrigColor) {
+				if (newSelectedDC2Hex == arrOrigColor) {
 					newSelectedDC2Hex = arrConvColor;
 				}				
 			}else{
-				doShowHideColor(arrOrigColor, 'block');
-				if (selectedDC1Hex == arrConvColor) {
+				doShowHideColor(arrOrigColor, 'block'); //Add colors back
+				//If selected color is alt color, revert back to main color
+				if (newSelectedDC1Hex == arrConvColor) {
 					newSelectedDC1Hex = arrOrigColor;
 				}
-				if (selectedDC2Hex == arrConvColor) {
+				if (newSelectedDC2Hex == arrConvColor) {
 					newSelectedDC2Hex = arrOrigColor;
 				}	
 			}	
 		}		
+		newSelectedDesc1 = dc['hex_' + newSelectedDC1Hex];
+		newSelectedDesc2 = dc['hex_' + newSelectedDC2Hex];
 
-		//Need to find desc, figure out what "this" is
-		//setDC1(this,newSelectedDC1Hex,'');
-		//setDC2(this,newSelectedDC2Hex,'');
+		if (isSetProduct == 1) { //If product is changed, immulate user clicking on currently selected colors
+			doSetSelectedColor(newSelectedDC1Hex, newSelectedDesc1, 1);
+			doSetSelectedColor(newSelectedDC2Hex, newSelectedDesc2, 2);
+		}
 	}
+
+	//The following color functions are used in showHideColors()
+	function doShowHideColor(checkColor, showHideVal) {
+		doShowHideColorSingle('primarydc_', checkColor, showHideVal);
+		doShowHideColorSingle('seconddc_', checkColor, showHideVal);
+		doShowHideColorSingle('primary_', checkColor, showHideVal);
+		doShowHideColorSingle('second_', checkColor, showHideVal);
+	}
+
+	function doShowHideColorSingle(divID, checkColor, showHideVal) {
+		if (document.getElementById(divID + checkColor)) {
+			document.getElementById(divID + checkColor).style.display = showHideVal;
+		}			
+	}
+
+	function doSetSelectedColor(checkColor, checkDesc, divNo) {
+		if (checkColor != '') {
+			if (document.getElementById('primary_' + checkColor) && divNo == 1) {
+				setDC1('primary_' + checkColor,checkColor,checkDesc);
+			}		
+			if (document.getElementById('primarydc_' + checkColor) && divNo == 1) {
+				setDC1('primarydc_' + checkColor,checkColor,checkDesc);
+			}
+			if (document.getElementById('second_' + checkColor) && divNo == 2) {
+				setDC2('second_' + checkColor,checkColor,checkDesc);
+			}				
+			if (document.getElementById('seconddc_' + checkColor) && divNo == 2) {
+				setDC2('seconddc_' + checkColor,checkColor,checkDesc);
+			}
+		}
+	}
+
+	function getColorSelected(divID, hexVal, checkVal, selectedVal) {
+		if (document.getElementById(divID+ hexVal)) {
+			if (document.getElementById(divID + hexVal).className == checkVal) {
+				selectedVal = hexVal;
+			}
+		}		
+		return selectedVal;
+	}
+
+	function getCurrentSelectedColor(divNo) {
+		var selectedVal = '';
+		for (var i = 0; i < dcBasic.length; i++) {
+			var hexVal = dcBasic[i];
+			if (divNo == 1) {
+				selectedVal = getColorSelected('primary_', hexVal, 'cpso-on', selectedVal);
+				selectedVal = getColorSelected('primarydc_', hexVal, 'colorPickSquare border-red', selectedVal);
+			}else{
+				selectedVal = getColorSelected('second_', hexVal, 'cpso-on', selectedVal);
+				selectedVal = getColorSelected('seconddc_', hexVal, 'colorPickSquare border-red', selectedVal);				
+			}
+		}
+		return selectedVal;
+	}
+	//END OF SHOWHIDE COLOR FUNCTIONS
 
 	function kd(_this,_e) {
 		var kc = _e.keyCode || _e.which;
@@ -1266,7 +1323,7 @@
 		} else {
 			initControls();			
 		}
-		showHideColors();
+		showHideColors(1);
 		setPrice();
 	}
 
@@ -2734,6 +2791,7 @@
 		//clrDiv.className='cpso-on';
 		document.getElementById('primary_'+hex).className='cpso-on';
 		document.getElementById('primarydc_'+hex).className='colorPickSquare border-red';
+		newSelectedDC1Hex = hex;
 
 		//make border of previous selected square white
 		document.getElementById('primary_'+selectedDC1Hex).className='cpso';
@@ -2782,6 +2840,7 @@
 		//clrDiv.className='cpso-on';
 		document.getElementById('second_'+hex).className='cpso-on';
 		document.getElementById('seconddc_'+hex).className='colorPickSquare border-red';
+		newSelectedDC2Hex = hex;
 
 		//make border of previous selected square white
 		document.getElementById('second_'+selectedDC2Hex).className='cpso';
