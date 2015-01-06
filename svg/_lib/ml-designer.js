@@ -300,15 +300,21 @@
 	}
 
 	//The following function hides/shows colors based on dig or emb, 
-	//also autoselects prev selected color when product is changed
+	//also autoselects prev selected color when product is changed - code is disabled
+	//also changes default color selection if color does not exist for emb
 	function showHideColors(isSetProduct) {
-		var newSelectedDesc1 = "";
-		var newSelectedDesc2 = "";
+		var newSelectedDesc1 = '';
+		var newSelectedDesc2 = '';
+		var changeDefaultColor1 = '';
+		var changeDefaultColor2 = '';
 
+		//This can be used to keep the colors the same until a refresh is done
+		/*
 		if (isSetProduct == 0) {
 			newSelectedDC1Hex = getCurrentSelectedColor(1);
 			newSelectedDC2Hex = getCurrentSelectedColor(2);
 		}
+		*/
 
 		//Loop through colors that are not in embroidery
 		for (var i = 0; i < colConv.length; i++) {
@@ -317,34 +323,60 @@
 			var arrConvColor = splHex[1];
 			var arrOrigDesc = splHex[2];
 			var arrConvDesc = splHex[3];
-
 			if (globalDesignTypeID == 3) { //Is Embroidery
 				doShowHideColor(arrOrigColor, 'none'); //Remove colors
+
+				if (selectedDC1Hex == arrOrigColor) {
+					changeDefaultColor1 = arrConvColor;
+				}
+				if (selectedDC2Hex == arrOrigColor) {
+					changeDefaultColor2 = arrConvColor;	
+				}
+				
+				//This can be used to keep the colors the same until a refresh is done
 				//If selected color does not exist, use alt color
+				/*
 				if (newSelectedDC1Hex == arrOrigColor) {
 					newSelectedDC1Hex = arrConvColor;
 				}
 				if (newSelectedDC2Hex == arrOrigColor) {
 					newSelectedDC2Hex = arrConvColor;
-				}				
+				}
+				*/				
 			}else{
 				doShowHideColor(arrOrigColor, 'block'); //Add colors back
+
+				//This can be used to keep the colors the same until a refresh is done
 				//If selected color is alt color, revert back to main color
+				/*
 				if (newSelectedDC1Hex == arrConvColor) {
 					newSelectedDC1Hex = arrOrigColor;
 				}
 				if (newSelectedDC2Hex == arrConvColor) {
 					newSelectedDC2Hex = arrOrigColor;
-				}	
+				}
+				*/	
 			}	
 		}		
-		newSelectedDesc1 = dc['hex_' + newSelectedDC1Hex];
-		newSelectedDesc2 = dc['hex_' + newSelectedDC2Hex];
 
+		if (changeDefaultColor1 != '') {
+			newSelectedDesc1 = dc['hex_' + changeDefaultColor1];	
+			doSetSelectedColor(changeDefaultColor1, newSelectedDesc1, 1);
+		}
+		if (changeDefaultColor2 != '') {
+			newSelectedDesc2 = dc['hex_' + newSelectedDC2Hex];	
+			doSetSelectedColor(changeDefaultColor2, newSelectedDesc2, 2);
+		}		
+
+		//This can be used to keep the colors the same until a refresh is done
+		/*
 		if (isSetProduct == 1) { //If product is changed, immulate user clicking on currently selected colors
-			doSetSelectedColor(newSelectedDC1Hex, newSelectedDesc1, 1);
+			newSelectedDesc1 = dc['hex_' + newSelectedDC1Hex];	
+			newSelectedDesc2 = dc['hex_' + newSelectedDC2Hex];
+			doSetSelectedColor(changeDefaultColor1, newSelectedDesc1, 1);
 			doSetSelectedColor(newSelectedDC2Hex, newSelectedDesc2, 2);
 		}
+		*/
 	}
 
 	//The following color functions are used in showHideColors()
