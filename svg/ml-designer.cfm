@@ -1040,6 +1040,7 @@
 										top:190px;
 										left:-237px;
 										opacity:0;
+										border:0px solid #555555;
 										-moz-transition: all .5s ease-in-out;
 										-ms-transition: all .5s ease-in-out;
 										-o-transition: all .5s ease-in-out;

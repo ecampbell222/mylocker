@@ -296,6 +296,7 @@
 		}
 
 		showHideColors(0);
+		showHideBackDesign();
 		loadXMLDoc();
 	}
 
@@ -1043,15 +1044,6 @@
 		if (typeof currentBackDesign !== 'undefined' && numBackProducts > 0)
 			setListBorder('backdesign',currentBackDesign);
 
-		// add back design checkbox
-		if (numBackProducts > 0) {
-			document.getElementById('addback-checkbox').style.display='block';
-			document.getElementById('addback-checkbox-replacement').style.display='none';
-		} else {
-			document.getElementById('addback-checkbox').style.display='none';
-			document.getElementById('addback-checkbox-replacement').style.display='block';
-		}
-
 		// setup maximum characters for name/number fields (everything has to be smaller than the default, or the default is used)
 		var ttMaxCharsDefault = 100;	// top text
 		var btMaxCharsDefault = 100;	// bottom text
@@ -1356,6 +1348,7 @@
 			initControls();			
 		}
 		showHideColors(1);
+		showHideBackDesign();
 		setPrice();
 	}
 
@@ -1776,34 +1769,50 @@
 	}
 */
 	function toggleAddBackDesign(showHide) {
-			if (typeof(showHide) == "object") {
-				if (showHide.checked) {
-					showHide = "hide";
-				}
+		if (typeof(showHide) == "object") {
+			if (showHide.checked) {
+				showHide = "hide";
 			}
+		}
 
-			if (showHide == "hide") {
-				document.getElementById('zoomDivBackBorder').style.left="-600px";
-				document.getElementById('remback').style.left="20px";
-				document.getElementById('addback2').checked=true;
-			}else{
-				document.getElementById('addback').checked=false;
-				document.getElementById('addback2').checked=false;
-				document.getElementById('zoomDivBackBorder').style.left="24px";
-				document.getElementById('remback').style.left="-1700px";
+		if (showHide == "hide") {
+			document.getElementById('zoomDivBackBorder').style.left="-600px";
+			document.getElementById('remback').style.left="20px";
+			if (document.getElementById('addback')) {
+				document.getElementById('addback').checked=true;
 			}
+			if (document.getElementById('addback2')) {
+				document.getElementById('addback2').checked=true;
+			}
+		}else{
+			document.getElementById('zoomDivBackBorder').style.left="24px";
+			document.getElementById('remback').style.left="-1700px";	
+			if (document.getElementById('addback')) {
+				document.getElementById('addback').checked=false;
+			}
+			if (document.getElementById('addback2')) {
+				document.getElementById('addback2').checked=false;
+			}
+		}
 
 
 		initControls();
 		setPrice();		
-		/*
-			Set check box to checked
-			Set opacity to 0 for border
-			Create another hidden div, opacity 0, Remove Back Design with checkbox checked
-			Code this function to show/hide based on showHide function
-			Clear history before testing
-		*/
+	}
 
+	function showHideBackDesign() {
+		if (numBackProducts > 0) {
+			document.getElementById('zoomDivBack').style.opacity = '1';
+			document.getElementById('zoomDivBack').style.left="-237px";
+			document.getElementById('cbth').style.display='block';
+			document.getElementById('addback-checkbox').style.display='block';
+			document.getElementById('addback-checkbox-replacement').style.display='none';
+			toggleAddBackDesign('show');
+		} else {
+			//toggleAddBackDesign('show');
+			document.getElementById('addback-checkbox').style.display='none';
+			document.getElementById('addback-checkbox-replacement').style.display='block';
+		}
 	}
 
 	function showBack() {
