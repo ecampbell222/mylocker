@@ -86,9 +86,11 @@
 	<cfset acts=createobject("component","com.mylocker.activity").list_v2(url.sc_id,url.shop_category_id) />
 	<cfset productViews=prod.getProductViewTypes(url.category) />
 	<cfset clrs=createobject("component","com.mylocker.color").getColorsOrdered('','','','','','','','','','','','',url.primary,url.second,url.third,'1') />
-	<cfset clrsconv=createobject("component","com.mylocker.color").getColorsConverted() />	
-	<cfset products=prod.getProduct(1,url.category,url.prodid,url.prodid1,url.prodid2,url.prodid3,url.prodid4,url.prodid5,url.prodid6,url.prodid7,url.prodid8,url.prodid9,url.prodid10) />
-	<cfset backproducts=prod.getProduct(2,url.category,url.prodid,url.prodid1,url.prodid2,url.prodid3,url.prodid4,url.prodid5,url.prodid6,url.prodid7,url.prodid8,url.prodid9,url.prodid10) />
+	<cfset clrsconv=createobject("component","com.mylocker.color").getColorsConverted() />
+	<cfset apiProductExists=prod.getAPIProductExists(url.category,url.sc_id) />
+	<cfloop query="apiProductExists"><cfset apiProductExistsVal=apiProductExists.apiProductExistsCount></cfloop>
+	<cfset products=prod.getProduct(1,url.category,url.prodid,url.prodid1,url.prodid2,url.prodid3,url.prodid4,url.prodid5,url.prodid6,url.prodid7,url.prodid8,url.prodid9,url.prodid10,apiProductExistsVal,url.sc_id) />
+	<cfset backproducts=prod.getProduct(2,url.category,url.prodid,url.prodid1,url.prodid2,url.prodid3,url.prodid4,url.prodid5,url.prodid6,url.prodid7,url.prodid8,url.prodid9,url.prodid10,apiProductExistsVal,url.sc_id) />
 	
 	<cfquery dbtype="query" name="front">
 		Select * from products where productid=#url.prodid#
@@ -195,6 +197,7 @@
 	var globalHideViewMore		 		= '<cfoutput>#url.apiHideViewMore#</cfoutput>';
 	var honorDocCookies 				= '<cfoutput>#url.honorDocCookies#</cfoutput>';
 	var fullSizeProductImagesOnly 		= '<cfoutput>#url.fullSizeProductImagesOnly#</cfoutput>';
+	var globalAPIProductExists	 		= '<cfoutput>#apiProductExistsVal#</cfoutput>';
 	//]]>
 </script>
 
@@ -506,7 +509,7 @@
 			</div> <!--- #flippable-panel --->
 		</div> <!--- #leftcol --->
 		<div id="action-column-wrapper">	<!--- right column, fixed width of 160 (but shaded area actually only comes out to 126px) --->
-			<a href="javascript:void(0);" id="swap-product" style="display:none;"><img src="_img/btn_view_more_products-109x98.gif" alt="" width="109" height="98" border="0" /></a>
+			<a href="javascript:void(0);" id="swap-product" style="display:none;"><img src="_img/btn_view_more_products-109x98.gif" alt="" id="imgViewMore" width="109" height="98" border="0" /></a>
 			<div id="action-column" style="margin-top:105px;">	<!--- everything in here is absolute positioned :(  --->
 				<div id="action-column-price-strikethrough" style="display:none;"><span style="color:red;text-decoration:line-through;"><span id="acps-value" style="color:#444;"></span></span></div>
 				<div id="action-column-price"><span id="acp-value"></span></div>

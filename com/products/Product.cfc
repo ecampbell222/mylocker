@@ -12,6 +12,22 @@
 		</cfquery>
 		<cfreturn qryCategories />
 	</cffunction>
+
+	<cffunction name="getAPIProductExists" output="false" returntype="query" access="remote">
+		<cfargument name="productCategory_id" required="false" default="1" />
+		<cfargument name="sc_id" required="false" default="MI4809166422" />
+		
+		<cfquery name="qryAPIProductExists" datasource="#dsn#">
+			SELECT count(*) as apiProductExistsCount
+			FROM shop_products sp
+			INNER JOIN tbl_prdtcat_rel pcr ON pcr.prdt_cat_rel_product_id = sp.product_id
+			WHERE pcr.prdt_cat_rel_CAT_ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#productCategory_id#" />
+			AND sp.shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#sc_id#" />
+		</cfquery>
+		<cfreturn qryAPIProductExists />
+	</cffunction>
+
+
 	
 	<cffunction access="Remote" name="getProduct" returnType="Query">
 		<cfargument name="viewType_id" required="false" default="1" />
@@ -27,9 +43,20 @@
 		<cfargument name="prodid8" required="false" default="0" />
 		<cfargument name="prodid9" required="false" default="0" />
 		<cfargument name="prodid10" required="false" default="0" />		
+		<cfargument name="apiProductExists" required="false" default="0" />	
+		<cfargument name="shopID" required="false" default="0" />	
+
 		<cfsavecontent variable="tmp">
 			<cfdump var="#arguments#">
 		</cfsavecontent>
+
+		<!--Used to add inner join and extra conditions to the where condition for the api-->
+		<!--Had to pass where condition in the statement due to coldfusion restriction-->
+		<cfset sqlvar1 = "" />
+		<cfif apiProductExists neq "0">
+			<cfset sqlvar1 = " INNER JOIN [shop_products] sp ON p.product_ID = sp.product_id " />
+		</cfif>
+
 		<cfquery name="getProductQuery" datasource="#dsn#">
 			SELECT 	pv.product_id PRODUCTID,
 					pv.designType_id DESIGNTYPEID,
@@ -54,9 +81,13 @@
 			FROM [Product_View] pv
 			INNER JOIN [tbl_products] p ON p.product_ID = pv.product_id
 			INNER JOIN [Product_Colors] c ON c.color_id = pv.color_id_primary
+			#sqlvar1#
 			LEFT JOIN [Product_Colors] cSecondary ON cSecondary.color_id = pv.color_id_secondary
 			LEFT JOIN [pictures] pic WITH (NOLOCK) ON pic.product = pv.product_id
 			WHERE pv.productCategory_id = #productCategory_id#
+			<cfif apiProductExists neq "0">
+				AND sp.shop_id = '#shopID#'
+			</cfif>
 				AND pv.viewType_id = #viewType_id#
 				AND p.product_OnWeb = 1
 				AND p.product_Archive = 0
@@ -94,9 +125,13 @@
 			FROM [Product_View] pv
 			INNER JOIN [tbl_products] p ON p.product_ID = pv.product_id
 			INNER JOIN [Product_Colors] c ON c.color_id = pv.color_id_primary
+			#sqlvar1#
 			LEFT JOIN [Product_Colors] cSecondary ON cSecondary.color_id = pv.color_id_secondary
 			LEFT JOIN [pictures] pic WITH (NOLOCK) ON pic.product = pv.product_id
 			WHERE pv.productCategory_id = #productCategory_id#
+			<cfif apiProductExists neq "0">
+				AND sp.shop_id = '#shopID#'
+			</cfif>
 				AND pv.viewType_id = #viewType_id#
 				AND p.product_OnWeb = 1
 				AND p.product_Archive = 0
@@ -149,25 +184,38 @@
 
 	<cffunction access="Remote" name="getProductSizeSKUs" returnType="Query">
 		<cfargument name="product_id" required="false" default="0" />
-		<cfquery name="getProductSizeSKUs" datasource="#dsn#">
-			SELECT 
-				s.SKU_ID SKUID, 
-				s.SKU_MerchSKUID MERCHANTSKU, 
-				s.SKU_Price PRICE, 
-				so.option_Name SIZE, 
-				so.option_Sort SORTORDER
-			FROM tbl_skus s
-				LEFT OUTER JOIN ((tbl_list_optiontypes ot
-				INNER JOIN tbl_skuoptions so ON ot.optiontype_ID = so.option_Type_ID) 
-				INNER JOIN tbl_skuoption_rel r ON so.option_ID = r.optn_rel_Option_ID) ON s.SKU_ID = r.optn_rel_SKU_ID 
-			WHERE 
-				s.SKU_ProductID = #product_id#
-				AND s.SKU_ShowWeb = 1 
-				AND (ot.optiontype_ID = 1 OR ot.optiontype_ID IS NULL)
-				AND (so.option_Name NOT IN ('Free S','Free M','Free L','Free XL','Free XXL','Free XXXL') OR so.option_Name IS NULL)
-			ORDER BY
-			  	so.option_Sort
-		</cfquery>
+		<cfargument name="globalAPIProductExists" required="false" default="0" />
+		<cfargument name="globalScId" required="false" default="" />
+		
+		<cfif globalAPIProductExists eq "0">
+			<cfquery name="getProductSizeSKUs" datasource="#dsn#">
+				SELECT 
+					s.SKU_ID SKUID, 
+					s.SKU_MerchSKUID MERCHANTSKU, 
+					s.SKU_Price PRICE, 
+					so.option_Name SIZE, 
+					so.option_Sort SORTORDER
+				FROM tbl_skus s
+					LEFT OUTER JOIN ((tbl_list_optiontypes ot
+					INNER JOIN tbl_skuoptions so ON ot.optiontype_ID = so.option_Type_ID) 
+					INNER JOIN tbl_skuoption_rel r ON so.option_ID = r.optn_rel_Option_ID) ON s.SKU_ID = r.optn_rel_SKU_ID 
+				WHERE 
+					s.SKU_ProductID = #product_id#
+					AND s.SKU_ShowWeb = 1 
+					AND (ot.optiontype_ID = 1 OR ot.optiontype_ID IS NULL)
+					AND (so.option_Name NOT IN ('Free S','Free M','Free L','Free XL','Free XXL','Free XXXL') OR so.option_Name IS NULL)
+				ORDER BY
+				  	so.option_Sort
+			</cfquery>
+		<cfelse>
+			<cfquery name="getProductSizeSKUs" datasource="#dsn#">
+				exec spAPILookupPrice 
+				@ShopID = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#globalScId#" />,
+				@ProductID = <cfqueryparam cfsqltype="cf_sql_integer" value="#product_id#" />, 
+				@ShowCost = 0, 
+				@CalcSizeType = 0 			
+			</cfquery>
+		</cfif>
 		<cfreturn getProductSizeSKUs />
 	</cffunction>
 

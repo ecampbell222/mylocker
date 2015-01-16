@@ -238,6 +238,9 @@
 		if (globalSkuPrice !== '0.00' && globalHideViewMore != '1') {
 			btnMoreProducts.style.display = '';
 			document.getElementById('action-column').style.marginTop = '3px';
+			if (globalHideViewMore != '0' && globalHideViewMore != '1') {
+				document.getElementById("imgViewMore").src = globalHideViewMore;
+			}			
 		}
 		if (parent.showMenu)
 			btnMoreProducts.onclick = parent.showMenu;
@@ -1239,7 +1242,7 @@
 		var prodViews 		= prod.getProductViewTypes(_cat); 	// ToDo: we should test this and return if it doesn't at least have 'front' in the result
 		var fp 				= prod.getProduct('1',_cat,_prod,_prod);	// ToDo: we should test length before continuing
 		var bp 				= prod.getProduct('2',_cat,_prod,_prod);
-		var prodSizes 		= prod.getProductSizeSKUs(_prod);
+		var prodSizes 		= prod.getProductSizeSKUs(_prod, globalAPIProductExists, globalScId);
 		var newDesignTypeId = "";
 		products 			= {};
 		backproducts 		= {};
@@ -1448,7 +1451,7 @@
 
 	function setSizes(){
 		var prod = new prodProxy;
-		var sizes=prod.getProductSizeSKUs(selectedProduct);
+		var sizes=prod.getProductSizeSKUs(selectedProduct, globalAPIProductExists, globalScId);
 		var sizelist=document.getElementById('sku');
 		var tmp,priceDiff;
 		var sizeText='';
