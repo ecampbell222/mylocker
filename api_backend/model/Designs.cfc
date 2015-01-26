@@ -8,61 +8,95 @@
 <cfcomponent accessors="true" output="false" persistent="false" extends="BaseObject">
 	<!--- Author: tim - Date: 11/25/2014 --->
 	<cffunction name="DesignCategories" output="false" access="public" returntype="any" hint="">
-		<cfargument name="company_id" type="string" required="true" />
+		<cfargument name="shop_id" type="string" required="true" />
 		<cfargument name="list_type" type="string" required="false" default="MyLocker" />
 
 		<cfset var local = {} />
 
 		<cfquery name="local.getShopCategories" datasource="cwdbsql">
-			SELECT group_id, [name] as group_name
-			FROM shop_group g
+			SELECT case when isCustom = 0 then category_id else 0 end AS cat_id,
+			case when isCustom = 1 then category_id else 0 end AS custom_cat_id, 
+			description, isCustom FROM
 			<cfif arguments.list_type IS NOT "MyLocker">
-				INNER JOIN api_designcategories dc WITH (NOLOCK) ON g.group_id = dc.shop_group AND dc.company_id = <cfqueryparam value="#arguments.company_id#" cfsqltype="cf_sql_bigint" />
+				(SELECT c.category_id, description, 0 AS isCustom  FROM shop_Category c
+				INNER JOIN api_designcategories apd1 ON c.category_id = apd1.category_id
+				WHERE description <> 'Custom' 
+				AND apd1.shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+				UNION
+				SELECT cs.category_id, description, 1 AS isCustom FROM shop_Category_Custom cs
+				INNER JOIN api_designcategories apd2 ON cs.category_id = apd2.category_custom_id
+				WHERE apd2.shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+				) 
+			<cfelse>
+				(SELECT category_id, description, 0 AS isCustom FROM shop_Category c 
+					WHERE description <> 'Custom'
+					UNION
+					SELECT category_id, description, 1 AS isCustom FROM shop_Category_Custom cs
+					WHERE shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+				) AS cat
 			</cfif>
-			WHERE name <> 'Custom'
-			ORDER BY top_category desc, order_by
+			AS cat 
+			ORDER BY description
 		</cfquery>
 
 		<cfreturn local.getShopCategories />
 	</cffunction>
 	<!--- Author: tim - Date: 11/25/2014 --->
-	<cffunction name="CompanyHasDesigns" output="false" access="public" returntype="any" hint="">
-		<cfargument name="company_id" type="string" required="true" />
+	<cffunction name="ShopHasDesigns" output="false" access="public" returntype="any" hint="">
+		<cfargument name="shop_id" type="string" required="true" />
 
 		<cfset var local = {} />
 
 		<cfquery name="local.checkDesigns" datasource="cwdbsql">
 			SELECT COUNT(category_id) as hasDesigns
 			FROM api_designcategories WITH (NOLOCK)
-			WHERE company_id = <cfqueryparam value="#arguments.company_id#" cfsqltype="cf_sql_bigint" />
+			WHERE shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
 		</cfquery>
 
 		<cfreturn local.checkDesigns.hasDesigns />
 	</cffunction>
 	<!--- Author: tim - Date: 11/25/2014 --->
-	<cffunction name="GetGroupActivities" output="false" access="public" returntype="any" hint="">
-		<cfargument name="company_id" type="string" required="true" />
-		<cfargument name="group_id" type="string" required="true" />
+	<cffunction name="GetCategoryActivities" output="false" access="public" returntype="any" hint="">
+		<cfargument name="shop_id" type="string" required="true" />
+		<cfargument name="category_id" type="string" required="true" />
+		<cfargument name="is_custom" type="string" required="true" />
 		<cfargument name="list_type" type="string" required="false" default="MyLocker" />
 
 		<cfset var local = {} />
 
 		<cfquery name="local.getActivities" datasource="cwdbsql">
-			SELECT DISTINCT a.activity_id, a.name as activity_name
-		    FROM shop_group g WITH (NOLOCK)
-	            INNER JOIN shop_group_category_link cl WITH (NOLOCK) ON g.group_id = cl.group_id
-	            INNER JOIN shop_Category_Activity_link al WITH (NOLOCK) ON cl.category_id = al.category_id
-	            INNER JOIN activity a WITH (NOLOCK) ON al.activity_id = a.activity_id and a.isActive = 1
-				<cfif arguments.list_type IS NOT "MyLocker">
-					INNER JOIN api_designcategories dc WITH (NOLOCK) ON g.group_id = dc.shop_group AND dc.company_id = <cfqueryparam value="#arguments.company_id#" cfsqltype="cf_sql_bigint" />
-					INNER JOIN api_designcategory_activities da WITH (NOLOCK) ON da.activity_id = a.activity_id AND dc.category_id = da.category_id
+			SELECT activity_id, name FROM
+			<cfif arguments.list_type IS NOT "MyLocker">
+				<cfif arguments.is_custom EQ "1">
+					activity_custom ac
+					INNER JOIN api_designcategory_activities adc ON ac.activity_id = adc.activity_id
+					WHERE category_custom_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />  
+					AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+				<cfelse>
+					activity ac
+					WHERE category_custom_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />  
+					AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
 				</cfif>
-			WHERE g.group_id = <cfqueryparam value="#arguments.group_id#" cfsqltype="cf_sql_bigint" />
-			ORDER BY a.name
+			<cfelse>
+				<cfif arguments.is_custom EQ "1">
+					activity_custom 
+					WHERE category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />  
+					AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />				
+				<cfelse>
+					activity 
+					WHERE category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" /> 
+				</cfif>
+			</cfif>
+			ORDER BY name
 		</cfquery>
 
 		<cfreturn local.getActivities />
 	</cffunction>
+
+	
+	<!--- DONE UP TO HERE--->
+
+
 	<!--- Author: tim - Date: 11/25/2014 --->
 	<cffunction name="AddDesigns" output="false" access="public" returntype="any" hint="">
 		<cfargument name="company_id" type="string" required="true" />
