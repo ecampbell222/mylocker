@@ -26,7 +26,7 @@
 		<cfset layout.end &= '<script src="/js/jquery.sortable.min.js"></script>' />
 
 		<cfset designCategories = Factory.Designs().DesignCategories(session.authUser.shop_id) />
-		<cfset hasDesigns = Factory.Designs().CompanyHasDesigns(session.authUser.shop_id) />
+		<cfset hasDesigns = Factory.Designs().ShopHasDesigns(session.authUser.shop_id) />
 		<!----<cfset showOnlyMyDesigns = Factory.Settings().ShowOnlyMyDesigns(session.authUser.company_id) />----->
 
 		<cfif hasDesigns>
