@@ -40,8 +40,11 @@
 	------------------------------------------------------>
 	<cfcase value="LoadActivities">
 		<cfset attributes.layout = "layout_ajax.cfm" />
-		<cfset activities = Factory.Designs().GetGroupActivities(session.authUser.shop_id, attributes.group_id,attributes.list_type) />
-
+		<cfif attributes.is_custom EQ "1">
+			<cfset activities = Factory.Designs().GetCategoryActivities(session.authUser.shop_id, attributes.cat_id_cust, attributes.is_custom, attributes.list_type) />			
+		<cfelse>
+			<cfset activities = Factory.Designs().GetCategoryActivities(session.authUser.shop_id, attributes.cat_id, attributes.is_custom, attributes.list_type) />
+		</cfif>
 		<cfinclude template="#vpath#\dsp_loadActivities.cfm" />
 	</cfcase>
 	<!-----------------------------------------------------

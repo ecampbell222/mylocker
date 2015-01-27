@@ -31,18 +31,22 @@ function SaveShowMyUploads(){
 		}
 	});	
 }
-function loadActivities(group, list){
+function loadActivities(shopid, catid, catidcust, iscustom, list){
+	//alert(shopid + "," + catid + "," + catidcust + "," + iscustom + "," + list);
 	$.ajax({
 		type: 'POST',
 		url: '/?t=d.LoadActivities',
 		dataType: 'html',
 		data:{
-			group_id: group,
+			shop_id: shopid,
+			cat_id: catid,
+			cat_id_cust: catidcust,
+			is_custom: iscustom,
 			list_type: list
 		},
 		timeout: 30000,
 		success: function(result) {
-			$("#" + list + "_group_"+group).html(result);
+			$("#" + list + "_group_"+catid+"_"+catidcust+"_"+iscustom).html(result);
 			$('.tree li.parent_li > span').unbind( "click" );
 			setDesignsTree();
 			setConfirmationPopUps();
@@ -107,7 +111,7 @@ function setDesignsTree(){
 	 
 	        if ($(this).attr('data-loaded') == 0){
 		        if ($(this).attr('data-level') == "group"){
-		        	loadActivities($(this).attr('data-item'),$(this).attr('data-list'));
+		        	loadActivities($(this).attr('data-shop'), $(this).attr('data-item'), $(this).attr('data-item2'), $(this).attr('data-custom'), $(this).attr('data-list'));
 		        	$(this).attr('data-loaded','1');
 		        } 
 	        }

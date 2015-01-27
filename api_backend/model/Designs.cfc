@@ -67,25 +67,26 @@
 		<cfset var local = {} />
 
 		<cfquery name="local.getActivities" datasource="cwdbsql">
-			SELECT activity_id, name FROM
+			SELECT ac.activity_id, ac.name FROM
 			<cfif arguments.list_type IS NOT "MyLocker">
 				<cfif arguments.is_custom EQ "1">
 					activity_custom ac
 					INNER JOIN api_designcategory_activities adc ON ac.activity_id = adc.activity_id
 					WHERE category_custom_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />  
-					AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+					AND adc.shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
 				<cfelse>
 					activity ac
-					WHERE category_custom_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />  
+					INNER JOIN api_designcategory_activities adc ON ac.activity_id = adc.activity_id
+					WHERE ac.category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />  
 					AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
 				</cfif>
 			<cfelse>
 				<cfif arguments.is_custom EQ "1">
-					activity_custom 
+					activity_custom  ac
 					WHERE category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />  
 					AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />				
 				<cfelse>
-					activity 
+					activity ac
 					WHERE category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" /> 
 				</cfif>
 			</cfif>
