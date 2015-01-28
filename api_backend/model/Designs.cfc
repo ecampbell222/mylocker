@@ -8,7 +8,7 @@
 <cfcomponent accessors="true" output="false" persistent="false" extends="BaseObject">
 	<cffunction name="DesignCategories" output="false" access="public" returntype="any" hint="">
 		<cfargument name="shop_id" type="string" required="true" />
-		<cfargument name="list_type" type="string" required="false" default="MyLocker" />
+		<cfargument name="list_type" type="string" required="false" default="mylocker" />
 
 		<cfset var local = {} />
 
@@ -17,7 +17,7 @@
 			SELECT case when isCustom = 0 then category_id else 0 end as cat_id,
 			case when isCustom = 1 then category_id else 0 end as custom_cat_id, 
 			description, isCustom FROM
-			<cfif arguments.list_type IS NOT "MyLocker">
+			<cfif arguments.list_type IS NOT "mylocker">
 				(SELECT c.category_id, description, 0 as isCustom FROM shop_Category c
 				INNER JOIN api_designcategories apd1 ON c.category_id = apd1.category_id
 				WHERE description <> 'Custom' 
@@ -62,13 +62,13 @@
 		<cfargument name="shop_id" type="string" required="true" />
 		<cfargument name="category_id" type="string" required="true" />
 		<cfargument name="is_custom" type="string" required="true" />
-		<cfargument name="list_type" type="string" required="false" default="MyLocker" />
+		<cfargument name="list_type" type="string" required="false" default="mylocker" />
 
 		<cfset var local = {} />
 
 		<cfquery name="local.getActivities" datasource="cwdbsql">
 			SELECT ac.activity_id, ac.name FROM
-			<cfif arguments.list_type IS NOT "MyLocker">
+			<cfif arguments.list_type IS NOT "mylocker">
 				<cfif arguments.is_custom EQ "1">
 					activity_custom ac
 					INNER JOIN api_designcategory_activities adc ON ac.activity_id = adc.activity_id
@@ -77,7 +77,7 @@
 				<cfelse>
 					activity ac
 					INNER JOIN api_designcategory_activities adc ON ac.activity_id = adc.activity_id
-					WHERE ac.category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />  
+					WHERE adc.category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />  
 					AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
 				</cfif>
 			<cfelse>
@@ -100,9 +100,8 @@
 	<cffunction name="AddDesigns" output="false" access="public" returntype="any" hint="">
 		<cfargument name="shop_id" type="string" required="true" />
 		<cfargument name="category_id" type="string" required="true" />
-		<cfargument name="data" type="string" required="true" />
-		<cfargument name="level" type="string" required="true" />
 		<cfargument name="is_custom" type="string" required="true" />
+		<cfargument name="level" type="string" required="true" />
 
 		<cfset var local = {} />
 
@@ -148,7 +147,7 @@
 					INNER JOIN activity a ON ad.category_id = a.category_id
 				</cfif>
 				WHERE api_designcategory_id IN (SELECT top 1 @@IDENTITY AS LastID FROM api_designcategories)
-				AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+				AND ad.shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
 				ORDER BY a.name
 			</cfif>
 		</cfquery>
@@ -231,9 +230,9 @@
 				FROM api_designcategory_activities
 				WHERE activity_id = <cfqueryparam value="#arguments.data#" cfsqltype="cf_sql_bigint" />
 				<cfif arguments.is_custom EQ "1">
-					AND category_id = <cfqueryparam value="#local.getCategory.category_id#" cfsqltype="cf_sql_bigint" />
-				<cfelse>
 					AND category_custom_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />
+				<cfelse>
+					AND category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />
 				</cfif>
 				AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
 			</cfquery>
@@ -243,9 +242,9 @@
 				SELECT count(activity_id) as numActivities
 				FROM api_designcategory_activities
 				<cfif arguments.is_custom EQ "1">
-					WHERE category_id = <cfqueryparam value="#local.getCategory.category_id#" cfsqltype="cf_sql_bigint" />
-				<cfelse>
 					WHERE category_custom_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />
+				<cfelse>
+					WHERE category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />
 				</cfif>				
 			</cfquery>
 
@@ -255,9 +254,9 @@
 					DELETE
 					FROM api_designcategories
 					<cfif arguments.is_custom EQ "1">
-						WHERE category_id = <cfqueryparam value="#local.getCategory.category_id#" cfsqltype="cf_sql_bigint" />
-					<cfelse>
 						WHERE category_custom_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />
+					<cfelse>
+						WHERE category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />
 					</cfif>
 					AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
 				</cfquery>

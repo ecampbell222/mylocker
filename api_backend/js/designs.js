@@ -32,7 +32,6 @@ function SaveShowMyUploads(){
 	});	
 }
 function loadActivities(shopid, catid, catidcust, iscustom, list){
-	//alert(shopid + "," + catid + "," + catidcust + "," + iscustom + "," + list);
 	$.ajax({
 		type: 'POST',
 		url: '/?t=d.LoadActivities',
@@ -56,21 +55,23 @@ function loadActivities(shopid, catid, catidcust, iscustom, list){
 		}
 	});	
 }
-function addToMyDesigns(level, data, group){
+function addToMyDesigns(shopid, catid, catidcust, iscustom, plevel){
 	$.ajax({
 		type: 'POST',
 		url: '/?t=d.AddDesigns',
 		dataType: 'html',
 		data:{
-			level: level,
-			data: data,
-			group: group			
+			shop_id: shopid,
+			cat_id: catid,
+			cat_id_cust: catidcust,
+			is_custom: iscustom,
+			level: plevel
 		},
 		timeout: 30000,
 		success: function(result) {
 			$(".my-designs").html(result);
-			setDesignsTree();
 			setConfirmationPopUps();
+			setDesignsTree();
 			$("#no-designs-info").hide();
 		},
 		failure: function() {
@@ -78,15 +79,20 @@ function addToMyDesigns(level, data, group){
 		}
 	});
 }
-function deleteDesign(level, data, group){
+
+function deleteDesign(shopid, catid, catidcust, pdata, plevel, iscustom){
+	//alert(catid + "," + catidcust + "," + pdata + "," + plevel + "," + iscustom);
 	$.ajax({
 		type: 'POST',
 		url: '/?t=d.DeleteDesigns',
 		dataType: 'html',
 		data:{
-			level: level,
-			data: data,
-			group: group			
+			shop_id: shopid,
+			cat_id: catid,
+			cat_id_cust: catidcust,
+			data: pdata,
+			level: plevel,
+			is_custom: iscustom			
 		},
 		timeout: 30000,
 		success: function(result) {
@@ -135,7 +141,7 @@ function setDesignsTree(){
 			$(this).find(".placeholder").remove();			
 			var list = $("<li class='parent_li'></li>").html(ui.draggable.html());
 			$(list).appendTo(this);
-			addToMyDesigns(ui.draggable.attr('data-level'),ui.draggable.attr('data-item'),ui.draggable.attr('data-group-id'));
+			addToMyDesigns(ui.draggable.attr('data-shop'), ui.draggable.attr('data-item'), ui.draggable.attr('data-item2'), ui.draggable.attr('data-custom'), ui.draggable.attr('data-level'));
 		}
 	})
 }

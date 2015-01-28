@@ -28,6 +28,11 @@
 		<div class="tree ">
 			<strong>MyLocker Design Categories:</strong>
 			<ul class="mylocker-designs">
+			<li>
+				<span data-loaded="0">
+					Add Custom Category
+				</span>
+			</li>
 			<cfoutput query="designCategories">
 				<li>
 					<span data-list="mylocker" data-level="group" data-item="#cat_id#" data-item2="#custom_cat_id#" data-shop="#session.authUser.shop_id#" data-custom="#isCustom#" data-loaded="0"><i class="glyphicon glyphicon-folder-close" style="color:##CCAB26;"></i> #description#</span>
@@ -54,7 +59,7 @@
 				<cfoutput query="myDesignCategories">
 					<li>
 						<span data-list="my" data-level="group" data-item="#cat_id#" data-item2="#custom_cat_id#" data-shop="#session.authUser.shop_id#" data-custom="#isCustom#" data-loaded="0"><i class="glyphicon glyphicon-folder-close" style="color:##CCAB26;"></i> #description#</span>
-						<a data-toggle="confirmation" data-placement="top" onConfirm="deleteDesign('group',#cat_id#,#cat_id#);">
+						<a data-toggle="confirmation" data-placement="top" onConfirm="deleteDesign('#session.authUser.shop_id#','#cat_id#', '#custom_cat_id#', '', 'group', '#isCustom#');">
 							<i class="glyphicon glyphicon-remove" aria-hidden="true"></i>
 						</a>
 						<ul id="my_group_#cat_id#_#custom_cat_id#_#isCustom#">

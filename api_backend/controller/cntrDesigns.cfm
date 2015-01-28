@@ -53,8 +53,12 @@
 	------------------------------------------------------>
 	<cfcase value="AddDesigns">
 		<cfset attributes.layout = "layout_ajax.cfm" />
-		<cfset addDesigns = Factory.Designs().AddDesigns(session.authUser.shop_id, attributes.group, attributes.data, attributes.level) />
-
+		<cfif attributes.is_custom EQ "1">
+			<cfset addDesigns = Factory.Designs().AddDesigns(session.authUser.shop_id, attributes.cat_id_cust, attributes.is_custom, attributes.level) />
+		<cfelse>
+			<cfset addDesigns = Factory.Designs().AddDesigns(session.authUser.shop_id, attributes.cat_id, attributes.is_custom, attributes.level) />
+		</cfif>		
+		
 		<cfset designCategories = Factory.Designs().DesignCategories(session.authUser.shop_id, "my") />
 
 		<cfinclude template="#vpath#\dsp_loadDesignCategories.cfm" />
@@ -65,7 +69,11 @@
 	------------------------------------------------------>
 	<cfcase value="DeleteDesigns">
 		<cfset attributes.layout = "layout_ajax.cfm" />
-		<cfset addDesigns = Factory.Designs().DeleteDesigns(session.authUser.shop_id, attributes.group, attributes.data, attributes.level) />
+		<cfif attributes.is_custom EQ "1">
+			<cfset delDesigns = Factory.Designs().DeleteDesigns(session.authUser.shop_id, attributes.cat_id_cust, attributes.data, attributes.level, attributes.is_custom) />
+		<cfelse>
+			<cfset delDesigns = Factory.Designs().DeleteDesigns(session.authUser.shop_id, attributes.cat_id, attributes.data, attributes.level, attributes.is_custom) />
+		</cfif>
 
 		<cfset designCategories = Factory.Designs().DesignCategories(session.authUser.shop_id, "my") />
 
