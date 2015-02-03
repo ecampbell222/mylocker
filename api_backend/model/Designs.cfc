@@ -3,7 +3,7 @@
   --- -------
   ---
   --- author: ed
-  --- date:   01/26/15
+  --- date:   01/30/15
   --->
 <cfcomponent accessors="true" output="false" persistent="false" extends="BaseObject">
 	<cffunction name="DesignCategories" output="false" access="public" returntype="any" hint="">
@@ -49,9 +49,16 @@
 		<cfset var local = {} />
 
 		<cfquery name="local.checkDesigns" datasource="cwdbsql">
-			SELECT COUNT(category_id) as hasDesigns
+			SELECT sum(hasDesignsCnt) as hasDesigns FROM
+			(SELECT COUNT(category_id) as hasDesignsCnt
 			FROM api_designcategories WITH (NOLOCK)
 			WHERE shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+			UNION 
+			SELECT COUNT(category_id) as hasDesignsCnt
+			FROM api_designcategory_activities WITH (NOLOCK)
+			WHERE isCustom = 1 
+			AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+			) as dCheck
 		</cfquery>
 
 		<cfreturn local.checkDesigns.hasDesigns />
@@ -61,33 +68,35 @@
 	<cffunction name="GetCategoryActivities" output="false" access="public" returntype="any" hint="">
 		<cfargument name="shop_id" type="string" required="true" />
 		<cfargument name="category_id" type="string" required="true" />
+		<cfargument name="category_cust_id" type="string" required="true" />
 		<cfargument name="is_custom" type="string" required="true" />
 		<cfargument name="list_type" type="string" required="false" default="mylocker" />
+
+		<cfset passCatID = arguments.category_id>
+		<cfif arguments.is_custom EQ "1">
+			<cfset passCatID = arguments.category_cust_id>
+		</cfif>
 
 		<cfset var local = {} />
 
 		<cfquery name="local.getActivities" datasource="cwdbsql">
-			SELECT ac.activity_id, ac.name FROM
-			<cfif arguments.list_type IS NOT "mylocker">
-				<cfif arguments.is_custom EQ "1">
-					activity_custom ac
-					INNER JOIN api_designcategory_activities adc ON ac.activity_id = adc.activity_id
-					WHERE category_custom_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />  
-					AND adc.shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
-				<cfelse>
-					activity ac
-					INNER JOIN api_designcategory_activities adc ON ac.activity_id = adc.activity_id
-					WHERE adc.category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />  
-					AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
-				</cfif>
+			SELECT act.activity_id, act.isCustom, act.name FROM 
+			<cfif arguments.is_custom EQ "1">
+				(SELECT activity_id, 1 as isCustom, name FROM 
+				activity_custom WHERE category_cust_id = <cfqueryparam value="#passCatID#" cfsqltype="cf_sql_bigint" /> 
+				AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />) act
+				<cfif arguments.list_type NEQ "mylocker">
+					INNER JOIN api_designcategory_activities api on act.activity_id = api.activity_id
+					AND act.isCustom = api.isCustom AND api.category_custom_id = <cfqueryparam value="#passCatID#" cfsqltype="cf_sql_bigint" />
+				</CFIF>
 			<cfelse>
-				<cfif arguments.is_custom EQ "1">
-					activity_custom  ac
-					WHERE category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />  
-					AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />				
-				<cfelse>
-					activity ac
-					WHERE category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" /> 
+				(SELECT activity_id, 0 as isCustom, name FROM activity WHERE category_id = <cfqueryparam value="#passCatID#" cfsqltype="cf_sql_bigint" />
+				UNION
+				SELECT activity_id, 1 as isCustom, name FROM activity_custom WHERE category_id = <cfqueryparam value="#passCatID#" cfsqltype="cf_sql_bigint" />
+				AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />) act
+				<cfif arguments.list_type NEQ "mylocker">
+					INNER JOIN api_designcategory_activities api on act.activity_id = api.activity_id
+					AND act.isCustom = api.isCustom AND api.category_id = <cfqueryparam value="#passCatID#" cfsqltype="cf_sql_bigint" />
 				</cfif>
 			</cfif>
 			ORDER BY name
@@ -96,185 +105,244 @@
 		<cfreturn local.getActivities />
 	</cffunction>
 
-	<!---Inserts selected categories or activities--->
-	<cffunction name="AddDesigns" output="false" access="public" returntype="any" hint="">
+	<!--Delete custom categories and activities-->
+	<cffunction name="DeleteCustom" output="false" access="public" returntype="any" hint="">
 		<cfargument name="shop_id" type="string" required="true" />
-		<cfargument name="category_id" type="string" required="true" />
+		<cfargument name="cat_id" type="string" required="true" />
+		<cfargument name="cat_cust_id" type="string" required="true" />
+		<cfargument name="activity_id" type="string" required="true" />
 		<cfargument name="is_custom" type="string" required="true" />
-		<cfargument name="level" type="string" required="true" />
 
 		<cfset var local = {} />
 
-		<cfquery name="local.insertCategory" datasource="cwdbsql">
-			BEGIN tran
-			<cfif arguments.is_custom EQ "1">
-				if not exists (SELECT category_custom_id FROM api_designcategories with (updlock,serializable) 
-				WHERE category_custom_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" /> 
-			<cfelse>
-				if not exists (SELECT category_id FROM api_designcategories with (updlock,serializable) 
-				WHERE category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" /> 
-			</cfif>
-			AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />)
-			BEGIN
-		    INSERT INTO api_designcategories(category_id, category_custom_id, shop_id)
-		    <cfif arguments.is_custom EQ "1">
-				VALUES (0, <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />,
-		    <cfelse>
-				VALUES (<cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />, 0,
-		    </cfif>
-		    <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />)
-			END
-			COMMIT tran
-		</cfquery>
-
-		<cfquery name="local.activitiesToAdd" datasource="cwdbsql">
-			SELECT a.category_id, a.activity_id, a.name AS activity_name 
-			<cfif arguments.level IS "activity">
-				<!---Grabbing single activity to insert by id--->
-				<cfif arguments.is_custom EQ "1">
-					from activity_custom a 
-				<cfelse>
-					from activity a 
-				</cfif>
-				where activity_id = <cfqueryparam value="#arguments.data#" cfsqltype="cf_sql_bigint" />
-			<cfelse>
-				<!---Grabbing activities to insert for last inserted api-store category--->
-				<cfif arguments.is_custom EQ "1">
-					FROM api_designcategories ad
-					INNER JOIN activity_custom a ON ad.category_custom_id = a.category_id				
-				<cfelse>
-					FROM api_designcategories ad
-					INNER JOIN activity a ON ad.category_id = a.category_id
-				</cfif>
-				WHERE api_designcategory_id IN (SELECT top 1 @@IDENTITY AS LastID FROM api_designcategories)
-				AND ad.shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
-				ORDER BY a.name
-			</cfif>
-		</cfquery>
-
-		<cfloop query="local.activitiesToAdd">
-			<cfquery name="local.addActivity" datasource="cwdbsql">
-				<cfif arguments.is_custom EQ "1">
-					if not exists
-					(SELECT category_custom_id FROM api_designcategory_activities 
-					WHERE category_custom_id = <cfqueryparam value="#local.activitiesToAdd.category_id#" cfsqltype="cf_sql_bigint" />
-					AND activity_id = <cfqueryparam value="#local.activitiesToAdd.activity_id#" cfsqltype="cf_sql_bigint" />
-					AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />)
-					BEGIN		
-					INSERT INTO api_designcategory_activities (category_id, category_custom_id, activity_id, shop_id, isActive)
-					VALUES (
-						0,
-						<cfqueryparam value="#local.activitiesToAdd.category_id#" cfsqltype="cf_sql_bigint" />,
-						<cfqueryparam value="#local.activitiesToAdd.activity_id#" cfsqltype="cf_sql_bigint" />,
-						<cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />,
-						0
-					)	
-					END		
-				<cfelse>
-					if not exists
-					(SELECT category_id FROM api_designcategory_activities 
-					WHERE category_id = <cfqueryparam value="#local.activitiesToAdd.category_id#" cfsqltype="cf_sql_bigint" />
-					AND activity_id = <cfqueryparam value="#local.activitiesToAdd.activity_id#" cfsqltype="cf_sql_bigint" />
-					AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />)
-					BEGIN						
-					INSERT INTO api_designcategory_activities (category_id, category_custom_id, activity_id, shop_id, isActive)
-					VALUES (
-						<cfqueryparam value="#local.activitiesToAdd.category_id#" cfsqltype="cf_sql_bigint" />,
-						0,
-						<cfqueryparam value="#local.activitiesToAdd.activity_id#" cfsqltype="cf_sql_bigint" />,
-						<cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />,
-						0
-					)	
-					END
-				</cfif>
+		<cfif arguments.activity_id NEQ "0">
+			<cfset delDesigns = This.DeleteDesigns(arguments.shop_id, arguments.cat_id, arguments.cat_cust_id, arguments.activity_id, 'activity', arguments.is_custom) />			
+			<cfquery name="local.deleteCustomAct" datasource="cwdbsql">
+				DELETE FROM activity_custom				
+				WHERE activity_id = <cfqueryparam value="#arguments.activity_id#" cfsqltype="cf_sql_bigint" />
+				AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+			</cfquery>			
+		<cfelse>
+			<cfset delDesigns = This.DeleteDesigns(arguments.shop_id, arguments.cat_id, arguments.cat_cust_id, arguments.activity_id, 'group', arguments.is_custom) />			
+			<cfquery name="local.deleteCustomAct" datasource="cwdbsql">
+				DELETE FROM activity_custom		
+				WHERE category_cust_id = <cfqueryparam value="#arguments.cat_cust_id#" cfsqltype="cf_sql_bigint" />
+				AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />		
+			</cfquery>				
+			<cfquery name="local.deleteCustomCat" datasource="cwdbsql">
+				DELETE FROM shop_category_custom 
+				WHERE category_id = <cfqueryparam value="#arguments.cat_cust_id#" cfsqltype="cf_sql_bigint" />
+				AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
 			</cfquery>
-		</cfloop>
+		</cfif>
+
+		<cfreturn true />
+	</cffunction>
+
+	<!---Inserts selected categories or activities--->
+	<cffunction name="AddDesigns" output="false" access="public" returntype="any" hint="">
+		<cfargument name="shop_id" type="string" required="true" />
+		<cfargument name="activity_id" type="string" required="true" />
+		<cfargument name="category_id" type="string" required="true" />
+		<cfargument name="category_cust_id" type="string" required="true" />
+		<cfargument name="is_custom" type="string" required="true" />
+		<cfargument name="level" type="string" required="true" />
+		<cfargument name="cat_cust" type="string" required="true" />
+
+		<cfset var local = {} />
+
+		<!---Check to see if category has any activities--->
+		<cfquery name="local.actExists" datasource="cwdbsql">
+			<cfif arguments.cat_cust EQ "1">
+				SELECT count(activity_id) as actCount
+				FROM activity_custom 
+				WHERE category_cust_id = <cfqueryparam value="#arguments.category_cust_id#" cfsqltype="cf_sql_bigint" />
+				AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+			<cfelse>
+				SELECT sum(subCount) as actCount FROM
+				(SELECT count(activity_id) as subCount
+				FROM activity_custom WHERE category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />
+				AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+				UNION
+				SELECT count(activity_id) as subCount
+				FROM activity WHERE category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />) as Cnt
+			</cfif>
+		</cfquery>
+		<cfset actCount = local.actExists.actCount>
+
+		<!---Do not add categories that have 0 activities--->
+		<cfif actCount GT 0>
+			<!---Check if category exists already, if so, set id--->
+			<cfquery name="local.catExists" datasource="cwdbsql">
+				SELECT count(api_designcategory_id) as catCount 
+				FROM api_designcategories with (updlock,serializable) 
+				<cfif arguments.cat_cust EQ "1">
+					WHERE category_custom_id = <cfqueryparam value="#arguments.category_cust_id#" cfsqltype="cf_sql_bigint" /> 
+				<cfelse>
+					WHERE category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" /> 
+				</cfif>
+				AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+			</cfquery>
+			<cfset catCount = local.catExists.catCount>
+
+			<!---Category was moved to right column, insert category if not exists--->
+			<cfif catCount EQ "0">
+				<cfquery name="local.insertCategory" datasource="cwdbsql">
+					BEGIN tran
+				    INSERT INTO api_designcategories(category_id, category_custom_id, shop_id)
+				    <cfif arguments.cat_cust EQ "1">
+						VALUES (0, <cfqueryparam value="#arguments.category_cust_id#" cfsqltype="cf_sql_bigint" />,
+				    <cfelse>
+						VALUES (<cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />, 0,
+				    </cfif>
+				    <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />)
+					COMMIT tran
+				</cfquery>
+			</cfif>
+
+			<!---Select all activities to be inserted--->
+			<cfquery name="local.insertActivities" datasource="cwdbsql">
+				INSERT INTO api_designcategory_activities (category_id, category_custom_id, activity_id, shop_id, isActive, isCustom)
+				SELECT insCatID, insCustCatID, insActID, insShopID, 0, insCustom FROM
+				<cfif arguments.level IS "activity">
+					<cfif arguments.cat_cust EQ "1">
+						<!---Insert single custom activity from custom category--->
+						(SELECT 0 as insCatID, category_cust_id as insCustCatID, activity_id as insActID, 
+						shop_id as insShopID, 1 as insCustom 
+						FROM activity_custom ac 
+						WHERE shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+						AND category_cust_id = <cfqueryparam value="#arguments.category_cust_id#" cfsqltype="cf_sql_bigint" /> 
+						AND activity_id = <cfqueryparam value="#arguments.activity_id#" cfsqltype="cf_sql_bigint" />
+						AND not activity_id IN (
+							SELECT activity_id FROM api_designcategory_activities api
+							WHERE api.category_custom_id = ac.category_cust_id
+							AND api.activity_id = ac.activity_id
+							AND api.shop_id = ac.shop_id
+							AND isCustom = 1
+						)) as cst
+					<cfelse>
+						<cfif arguments.is_custom EQ "1">
+							<!---insert single custom activity from regular category--->
+							(SELECT category_id as insCatID, 0 as insCustCatID, activity_id as insActID, 
+							shop_id as insShopID, 1 as insCustom 
+							FROM activity_custom ac 
+							WHERE shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+							AND category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" /> 
+							AND activity_id = <cfqueryparam value="#arguments.activity_id#" cfsqltype="cf_sql_bigint" />
+							AND not activity_id IN (
+								SELECT activity_id FROM api_designcategory_activities api
+								WHERE api.category_id = ac.category_id
+								AND api.activity_id = ac.activity_id
+								AND api.shop_id = ac.shop_id
+								AND isCustom = 1
+							)) as cst
+						<cfelse>
+							<!---insert single regular activity from regular category--->
+							(SELECT category_id as insCatID, 0 as insCustCatID, activity_id as insActID, 
+							'#arguments.shop_id#' as insShopID, 0 as insCustom 
+							FROM activity ac 
+							WHERE category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" /> 
+							AND activity_id = <cfqueryparam value="#arguments.activity_id#" cfsqltype="cf_sql_bigint" />
+							AND not activity_id IN (
+								SELECT activity_id FROM api_designcategory_activities api
+								WHERE api.category_id = ac.category_id
+								AND api.activity_id = ac.activity_id
+								AND isCustom = 0
+							)) as cst
+						</cfif>
+					</cfif>
+				<cfelse>
+					<cfif arguments.is_custom EQ "1">
+						<!---insert all custom activites from custom category--->
+						(SELECT 0 as insCatID, category_cust_id as insCustCatID, activity_id as insActID, 
+						shop_id as insShopID, 1 as insCustom 
+						FROM activity_custom ac 
+						WHERE shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+						AND category_cust_id = <cfqueryparam value="#arguments.category_cust_id#" cfsqltype="cf_sql_bigint" /> 
+						AND not activity_id IN (
+							SELECT activity_id FROM api_designcategory_activities api
+							WHERE api.category_custom_id = ac.category_cust_id
+							AND api.shop_id = ac.shop_id
+							AND isCustom = 1
+						)) as cst
+					<cfelse>
+						<!---insert all activites from regular category--->
+						(
+						SELECT category_id as insCatID, 0 as insCustCatID, activity_id as insActID, 
+						shop_id as insShopID, 1 as insCustom 
+						FROM activity_custom ac 
+						WHERE shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+						AND category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" /> 
+						AND not activity_id IN (
+							SELECT activity_id FROM api_designcategory_activities api
+							WHERE api.category_id = ac.category_id
+							AND api.shop_id = ac.shop_id
+							AND isCustom = 1
+						) UNION
+						SELECT category_id as insCatID, 0 as insCustCatID, activity_id as insActID, 
+						'#arguments.shop_id#' as insShopID, 0 as insCustom 
+						FROM activity ac 
+						WHERE category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" /> 
+						AND not activity_id IN (
+							SELECT activity_id FROM api_designcategory_activities api
+							WHERE api.category_id = ac.category_id
+							AND isCustom = 0
+						)) as cst
+					</cfif>
+				</cfif>
+
+			</cfquery>
+		</cfif>
 
 		<cfreturn true />
 	</cffunction>
 
 	<!---Deletes selected categories/activities--->
-	<cffunction name="DeleteDesigns" output="false" access="public" returntype="any" hint="">
+	<cffunction name="DeleteDesigns" output="true" access="public" returntype="any" hint="">
 		<cfargument name="shop_id" type="string" required="true" />
 		<cfargument name="category_id" type="string" required="true" />
+		<cfargument name="category_cust_id" type="string" required="true" />
 		<cfargument name="data" type="string" required="true" />
 		<cfargument name="level" type="string" required="true" />
 		<cfargument name="is_custom" type="string" required="true" />
 
 		<cfset var local = {} />
 
-		<cfif arguments.level IS "group">
-			<cfquery name="local.deleteActivities" datasource="cwdbsql">
-				DELETE
-				FROM api_designcategory_activities
-				<cfif arguments.is_custom EQ "1">
-					WHERE category_custom_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />
-				<cfelse>
-					WHERE category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />
-				</cfif>
-				AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
-			</cfquery>
-			<cfquery name="local.deleteCategory" datasource="cwdbsql">
-				DELETE
-				FROM api_designcategories
-				<cfif arguments.is_custom EQ "1">
-					WHERE category_custom_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />
-				<cfelse>
-					WHERE category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />
-				</cfif>
-				AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
-			</cfquery>
-		<cfelse>
-			<cfquery name="local.deleteActivity" datasource="cwdbsql">
-				DELETE
-				FROM api_designcategory_activities
-				WHERE activity_id = <cfqueryparam value="#arguments.data#" cfsqltype="cf_sql_bigint" />
-				<cfif arguments.is_custom EQ "1">
-					AND category_custom_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />
-				<cfelse>
-					AND category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />
-				</cfif>
-				AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
-			</cfquery>
-
-			<!---Check to see if there are any activities still assigned to the category---->
-			<cfquery name="local.checkIfActivities" datasource="cwdbsql">
-				SELECT count(activity_id) as numActivities
-				FROM api_designcategory_activities
-				<cfif arguments.is_custom EQ "1">
-					WHERE category_custom_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />
-				<cfelse>
-					WHERE category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />
-				</cfif>				
-			</cfquery>
-
-			<!---If there are not any activities delete the category too---->
-			<cfif local.checkIfActivities.numActivities IS 0>
-				<cfquery name="local.deleteCategory" datasource="cwdbsql">
-					DELETE
-					FROM api_designcategories
-					<cfif arguments.is_custom EQ "1">
-						WHERE category_custom_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />
-					<cfelse>
-						WHERE category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />
-					</cfif>
-					AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
-				</cfquery>
+		<!---Delete individual activities--->
+		<cfquery name="local.deleteActivities" datasource="cwdbsql">
+			DELETE FROM api_designcategory_activities 
+			WHERE isCustom = <cfqueryparam value="#arguments.is_custom#" cfsqltype="cf_sql_int" />
+			AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+			<cfif arguments.is_custom EQ "1">
+				AND category_custom_id = <cfqueryparam value="#arguments.category_cust_id#" cfsqltype="cf_sql_bigint" />
+			<cfelse>
+				AND category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />
 			</cfif>
-		</cfif>
+			<cfif arguments.level NEQ "group">
+				AND activity_id = <cfqueryparam value="#arguments.data#" cfsqltype="cf_sql_bigint" />			
+			</cfif>				
+		</cfquery>
+
+		<!---Delete all categories from selected api with 0 activities--->
+		<cfquery name="local.deleteCategoriesCust" datasource="cwdbsql">
+			DELETE FROM api_designcategories 
+			WHERE not category_custom_id IN	(
+				SELECT distinct category_custom_id FROM api_designcategory_activities
+				WHERE shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" /> 
+				AND category_custom_id > 0
+			)
+			AND category_id = 0
+		</cfquery>
+		<cfquery name="local.deleteCategories" datasource="cwdbsql">
+			DELETE FROM api_designcategories WHERE not category_id IN
+			(SELECT distinct category_id FROM api_designcategory_activities
+				WHERE shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" /> 
+				AND category_id > 0
+			)
+			AND category_custom_id = 0
+		</cfquery>
 
 		<cfreturn true />
-	</cffunction>
-
-    <!--- Author: Todd - Date: 12/09/2014 --->
-    <!--- NOTE: This should be done by shop_id instead of company_id --->
-	<cffunction name="UploadLogos" output="false" access="public" returntype="void" hint="">
-		<cfargument name="company_id" type="string" required="true" />
-		<cfargument name="school_id" type="string" required="true" />
-        <cfargument name="upload_path" type="string" required="true" />
-        <cfargument name="file" type="struct" required="true" />
-        
-		<cffile action="UPLOAD" filefield="file" destination="#upload_path#" nameconflict="MAKEUNIQUE">  
 	</cffunction>
 
 </cfcomponent>

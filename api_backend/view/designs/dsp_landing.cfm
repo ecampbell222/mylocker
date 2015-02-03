@@ -27,15 +27,21 @@
 	<div class="col-xs-6">
 		<div class="tree ">
 			<strong>MyLocker Design Categories:</strong>
+
 			<ul class="mylocker-designs">
 			<li>
-				<span data-loaded="0">
-					Add Custom Category
+				<span id="spnAddCustCat" data-level="custom" onclick="javascript:setCustomTextbox('AddCustCat','<cfoutput>#session.authUser.shop_id#</cfoutput>','','','');" style="cursor:cell;background-color:#ffffff;">
+					<i class="glyphicon glyphicon-plus" aria-hidden="true"></i> Add Custom Category
 				</span>
-			</li>
+			</li>	
 			<cfoutput query="designCategories">
 				<li>
-					<span data-list="mylocker" data-level="group" data-item="#cat_id#" data-item2="#custom_cat_id#" data-shop="#session.authUser.shop_id#" data-custom="#isCustom#" data-loaded="0"><i class="glyphicon glyphicon-folder-close" style="color:##CCAB26;"></i> #description#</span>
+					<span data-list="mylocker" data-level="group" data-item="" data-item2="#cat_id#" data-item3="#custom_cat_id#" data-shop="#session.authUser.shop_id#" data-custom="#isCustom#" data-cat-custom="#isCustom#" data-loaded="0"><i class="glyphicon glyphicon-folder-close" style="color:##CCAB26;"></i> #description#</span>
+					<cfif isCustom IS "1">
+						<a data-toggle="confirmation" data-placement="top" onConfirm="deleteCustom('0','#custom_cat_id#','0','1');">
+							<i class="glyphicon glyphicon-remove" aria-hidden="true"></i>
+						</a>
+					</cfif>						
 					<ul id="mylocker_group_#cat_id#_#custom_cat_id#_#isCustom#">
 		                <li style="display:none">
 		                	<span><i class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></i> Loading</span>
@@ -58,7 +64,7 @@
 				<ul class="my-designs" style="min-height:112px">
 				<cfoutput query="myDesignCategories">
 					<li>
-						<span data-list="my" data-level="group" data-item="#cat_id#" data-item2="#custom_cat_id#" data-shop="#session.authUser.shop_id#" data-custom="#isCustom#" data-loaded="0"><i class="glyphicon glyphicon-folder-close" style="color:##CCAB26;"></i> #description#</span>
+						<span data-list="my" data-level="group" data-item="" data-item2="#cat_id#" data-item3="#custom_cat_id#" data-shop="#session.authUser.shop_id#" data-custom="#isCustom#" data-cat-custom="#isCustom#" data-loaded="0"><i class="glyphicon glyphicon-folder-close" style="color:##CCAB26;"></i> #description#</span>
 						<a data-toggle="confirmation" data-placement="top" onConfirm="deleteDesign('#session.authUser.shop_id#','#cat_id#', '#custom_cat_id#', '', 'group', '#isCustom#');">
 							<i class="glyphicon glyphicon-remove" aria-hidden="true"></i>
 						</a>

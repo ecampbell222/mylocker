@@ -8,6 +8,40 @@ $(function(){
 		$("#design-selection").toggle();
 	}
 });
+function deleteCustom(catid, catcustid, activityid, iscustom) {
+	$.ajax({
+		type: 'POST',
+		url: '/?t=d.DeleteCustom',
+		dataType: 'html',
+		data:{
+			cat_id: catid,
+			cat_cust_id: catcustid,
+			activity_id: activityid,
+			is_custom: iscustom
+		},
+		timeout: 30000,
+		success: function(result) {
+			top.location.href = "/?t=d.designs";
+		},
+		failure: function() {
+			
+		}
+	});
+}
+
+function setCustomTextbox(divID, shop_id, cat_id, cat_cust_id, is_custom) {
+	if (divID == "AddCustCat") {
+		var passDivID = divID
+	}else{
+		var passDivID = divID + "_" + cat_id + "_" + cat_cust_id;
+	}
+	if ($("#spn" + passDivID).html().trim().indexOf("Add Custom Category") > 0 || $("#spn" + passDivID).html().trim().indexOf("Add Custom Activity") > 0) {
+		var newTextbox = '<input type="text" id="txt' + passDivID + '" value="" maxlength="50" style="width:140px;" />';
+		newTextbox += ' &nbsp;<button type="button" class="btn btn-sm btn-primary" data-toggle="modal">Add</button>';
+		$("#spn" + passDivID).html(newTextbox);
+		$("#txt" + passDivID).focus();
+	}
+}
 function SaveShowMyUploads(){
 	$("#design-selection").toggle();
 	
@@ -55,17 +89,19 @@ function loadActivities(shopid, catid, catidcust, iscustom, list){
 		}
 	});	
 }
-function addToMyDesigns(shopid, catid, catidcust, iscustom, plevel){
+function addToMyDesigns(shopid, data1, data2, data3, iscustom, plevel, catcust){
 	$.ajax({
 		type: 'POST',
 		url: '/?t=d.AddDesigns',
 		dataType: 'html',
 		data:{
 			shop_id: shopid,
-			cat_id: catid,
-			cat_id_cust: catidcust,
+			pdata1: data1,
+			pdata2: data2,
+			pdata3: data3,
 			is_custom: iscustom,
-			level: plevel
+			level: plevel,
+			cat_cust: catcust
 		},
 		timeout: 30000,
 		success: function(result) {
@@ -117,7 +153,7 @@ function setDesignsTree(){
 	 
 	        if ($(this).attr('data-loaded') == 0){
 		        if ($(this).attr('data-level') == "group"){
-		        	loadActivities($(this).attr('data-shop'), $(this).attr('data-item'), $(this).attr('data-item2'), $(this).attr('data-custom'), $(this).attr('data-list'));
+		        	loadActivities($(this).attr('data-shop'), $(this).attr('data-item2'), $(this).attr('data-item3'), $(this).attr('data-custom'), $(this).attr('data-list'));
 		        	$(this).attr('data-loaded','1');
 		        } 
 	        }
@@ -138,10 +174,12 @@ function setDesignsTree(){
 		//hoverClass : "listHover",
 		accept : ":not(.ui-sortable-helper)",
 		drop : function(event, ui) {
-			$(this).find(".placeholder").remove();			
-			var list = $("<li class='parent_li'></li>").html(ui.draggable.html());
-			$(list).appendTo(this);
-			addToMyDesigns(ui.draggable.attr('data-shop'), ui.draggable.attr('data-item'), ui.draggable.attr('data-item2'), ui.draggable.attr('data-custom'), ui.draggable.attr('data-level'));
+			if (ui.draggable.attr('data-level') != "custom") {
+				$(this).find(".placeholder").remove();			
+				var list = $("<li class='parent_li'></li>").html(ui.draggable.html());
+				$(list).appendTo(this);
+				addToMyDesigns(ui.draggable.attr('data-shop'), ui.draggable.attr('data-item'), ui.draggable.attr('data-item2'), ui.draggable.attr('data-item3'), ui.draggable.attr('data-custom'), ui.draggable.attr('data-level'), ui.draggable.attr('data-cat-custom'));
+			}
 		}
 	})
 }
