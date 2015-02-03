@@ -1,7 +1,7 @@
 <cfif attributes.list_type IS "mylocker">
 	<li>
 		<cfset custSpanID = "spnAddCustAct_" & attributes.cat_id & "_" & attributes.cat_id_cust>
-		<span id="<cfoutput>#custSpanID#</cfoutput>" data-loaded="0" style="cursor:cell;background-color:#ffffff;" onclick="javascript:setCustomTextbox('AddCustAct','<cfoutput>#session.authUser.shop_id#</cfoutput>','<cfoutput>#attributes.cat_id#</cfoutput>','<cfoutput>#attributes.cat_id_cust#</cfoutput>','<cfoutput>#attributes.is_custom#</cfoutput>');">
+		<span id="<cfoutput>#custSpanID#</cfoutput>" data-loaded="0" style="cursor:cell;background-color:#ffffff;" onclick="javascript:setCustomTextbox('AddCustAct','<cfoutput>#attributes.cat_id#</cfoutput>','<cfoutput>#attributes.cat_id_cust#</cfoutput>','<cfoutput>#attributes.is_custom#</cfoutput>');">
 			<i class="glyphicon glyphicon-plus" aria-hidden="true"></i> Add Custom Activity
 		</span>
 	</li>

@@ -30,7 +30,7 @@
 
 			<ul class="mylocker-designs">
 			<li>
-				<span id="spnAddCustCat" data-level="custom" onclick="javascript:setCustomTextbox('AddCustCat','<cfoutput>#session.authUser.shop_id#</cfoutput>','','','');" style="cursor:cell;background-color:#ffffff;">
+				<span id="spnAddCustCat" data-level="custom" onclick="javascript:setCustomTextbox('AddCustCat','','','');" style="cursor:cell;background-color:#ffffff;">
 					<i class="glyphicon glyphicon-plus" aria-hidden="true"></i> Add Custom Category
 				</span>
 			</li>	

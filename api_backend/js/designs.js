@@ -8,6 +8,42 @@ $(function(){
 		$("#design-selection").toggle();
 	}
 });
+
+function addCustom(catid, catcustid, iscustom) {
+	if (catid == "" && catcustid == "") {
+		var divID = "AddCustCat";
+	}else{
+		var divID = "AddCustAct" + "_" + catid + "_" + catcustid;
+	}	
+	var categoryName = $.trim($("#txt" + divID).val());
+	if (categoryName == "") {
+		alert('Please enter a category name');
+	}else{
+		$.ajax({
+			type: 'POST',
+			url: '/?t=d.AddCustom',
+			dataType: 'html',
+			data:{
+				cat_id: catid,
+				cat_cust_id: catcustid,
+				is_custom: iscustom,
+				category_name:categoryName
+			},
+			timeout: 30000,
+			success: function(result) {
+				if ($.trim(result) == "dup") {
+					alert('The category name you chose already exists.');
+				}else{
+					top.location.href = "/?t=d.designs";
+				}
+			},
+			failure: function() {
+				
+			}
+		});
+	}
+}
+
 function deleteCustom(catid, catcustid, activityid, iscustom) {
 	$.ajax({
 		type: 'POST',
@@ -29,17 +65,29 @@ function deleteCustom(catid, catcustid, activityid, iscustom) {
 	});
 }
 
-function setCustomTextbox(divID, shop_id, cat_id, cat_cust_id, is_custom) {
+function setCustomTextbox(divID, cat_id, cat_cust_id, is_custom) {
 	if (divID == "AddCustCat") {
 		var passDivID = divID
+		var passVal = "'','',''";
 	}else{
 		var passDivID = divID + "_" + cat_id + "_" + cat_cust_id;
+		var passVal = "'" + cat_id + "','" + cat_cust_id + "','" + is_custom + "'";
 	}
 	if ($("#spn" + passDivID).html().trim().indexOf("Add Custom Category") > 0 || $("#spn" + passDivID).html().trim().indexOf("Add Custom Activity") > 0) {
 		var newTextbox = '<input type="text" id="txt' + passDivID + '" value="" maxlength="50" style="width:140px;" />';
-		newTextbox += ' &nbsp;<button type="button" class="btn btn-sm btn-primary" data-toggle="modal">Add</button>';
+		newTextbox += ' &nbsp;<button type="button" class="btn btn-sm btn-primary" onclick="javascript:addCustom(' + passVal + ');" data-toggle="modal">Add</button>';
 		$("#spn" + passDivID).html(newTextbox);
 		$("#txt" + passDivID).focus();
+		$("#txt" + passDivID).keypress(function(event){
+			var keycode = (event.keyCode ? event.keyCode : event.which);
+			if(keycode == '13'){
+				if (divID == "AddCustCat") {
+					addCustom('','','');
+				}else{
+					addCustom(cat_id, cat_cust_id, is_custom);
+				}
+			}
+		});		
 	}
 }
 function SaveShowMyUploads(){
@@ -105,10 +153,15 @@ function addToMyDesigns(shopid, data1, data2, data3, iscustom, plevel, catcust){
 		},
 		timeout: 30000,
 		success: function(result) {
-			$(".my-designs").html(result);
-			setConfirmationPopUps();
-			setDesignsTree();
-			$("#no-designs-info").hide();
+			if ($.trim(result) == "noact") {
+				alert('You cannot add a category with 0 activities.');
+				top.location.href = "/?t=d.designs";
+			}else{
+				$(".my-designs").html(result);
+				setConfirmationPopUps();
+				setDesignsTree();
+				$("#no-designs-info").hide();
+			}
 		},
 		failure: function() {
 			

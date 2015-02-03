@@ -105,6 +105,97 @@
 		<cfreturn local.getActivities />
 	</cffunction>
 
+	<!--Add custom categories and activities-->
+	<cffunction name="AddCustom" output="false" access="public" returntype="any" hint="">
+		<cfargument name="shop_id" type="string" required="true" />
+		<cfargument name="cat_id" type="string" required="true" />
+		<cfargument name="cat_cust_id" type="string" required="true" />
+		<cfargument name="is_custom" type="string" required="true" />
+		<cfargument name="category_name" type="string" required="true" />
+		<cfset retVal = "1">
+
+		<cfset var local = {} />
+
+		<cfif cat_id EQ "" and cat_cust_id EQ "">
+			<cfquery name="local.dupCheck" datasource="cwdbsql">
+				SELECT sum(catCount) as catCountTot FROM
+				(SELECT count(category_id) as catCount FROM shop_category 
+				WHERE description = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.category_name#" />
+				UNION
+				SELECT count(category_id) as catCount FROM shop_category_custom 
+				WHERE description = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.category_name#" />
+				) as c
+			</cfquery>
+			<cfset dupCount = local.dupCheck.catCountTot>			
+			<cfif dupCount GT 0>
+				<cfset retVal = "dup">
+			<cfelse>
+				<cfquery name="local.insCat" datasource="cwdbsql">
+					INSERT INTO shop_category_custom (description, created_dt, isActive, shop_id)
+					VALUES (
+ 						<cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.category_name#" />,
+ 						getdate(), 0,
+ 						<cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+					)
+				</cfquery>
+			</cfif>
+			
+		<cfelse>
+			<cfif arguments.is_custom EQ "1">
+				<cfquery name="local.dupCheck" datasource="cwdbsql">
+					SELECT count(activity_id) as actCountTot FROM activity_custom 
+					WHERE name = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.category_name#" /> 
+					AND category_cust_id = <cfqueryparam value="#arguments.cat_cust_id#" cfsqltype="cf_sql_bigint" />
+					AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+				</cfquery>
+				<cfset dupCount = local.dupCheck.actCountTot>			
+				<cfif dupCount GT 0>
+					<cfset retVal = "dup">
+				<cfelse>
+					<cfquery name="local.insCat" datasource="cwdbsql">
+						INSERT INTO activity_custom (name, category_id, isActive, shop_id, category_cust_id)
+						VALUES (
+							<cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.category_name#" />,
+							0, 0, 
+							<cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />,
+							<cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.cat_cust_id#" />
+						)
+					</cfquery>
+				</cfif>									
+			<cfelse>
+				<cfquery name="local.dupCheck" datasource="cwdbsql">
+					SELECT sum(actCount) as actCountTot FROM
+					(SELECT count(activity_id) as actCount FROM activity 
+					WHERE name = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.category_name#" /> 
+					AND category_id = <cfqueryparam value="#arguments.cat_id#" cfsqltype="cf_sql_bigint" />					
+					UNION
+					SELECT count(activity_id) as actCount FROM activity_custom 
+					WHERE name = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.category_name#" /> 
+					AND category_id = <cfqueryparam value="#arguments.cat_id#" cfsqltype="cf_sql_bigint" />
+					AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+					) as a
+				</cfquery>
+				<cfset dupCount = local.dupCheck.actCountTot>			
+				<cfif dupCount GT 0>
+					<cfset retVal = "dup">
+				<cfelse>
+					<cfquery name="local.insCat" datasource="cwdbsql">
+						INSERT INTO activity_custom (name, category_id, isActive, shop_id, category_cust_id)
+						VALUES (
+							<cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.category_name#" />,
+							<cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.cat_id#" />, 
+							0, 
+							<cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />,
+							0
+						)
+					</cfquery>
+				</cfif>				
+			</cfif>
+		</cfif>
+
+		<cfreturn retVal />
+	</cffunction>
+
 	<!--Delete custom categories and activities-->
 	<cffunction name="DeleteCustom" output="false" access="public" returntype="any" hint="">
 		<cfargument name="shop_id" type="string" required="true" />
@@ -150,6 +241,7 @@
 		<cfargument name="cat_cust" type="string" required="true" />
 
 		<cfset var local = {} />
+		<cfset retVal = "">
 
 		<!---Check to see if category has any activities--->
 		<cfquery name="local.actExists" datasource="cwdbsql">
@@ -171,7 +263,9 @@
 		<cfset actCount = local.actExists.actCount>
 
 		<!---Do not add categories that have 0 activities--->
-		<cfif actCount GT 0>
+		<cfif actCount EQ 0>
+			<cfset retVal = "noact">
+		<cfelse>
 			<!---Check if category exists already, if so, set id--->
 			<cfquery name="local.catExists" datasource="cwdbsql">
 				SELECT count(api_designcategory_id) as catCount 
@@ -294,7 +388,7 @@
 			</cfquery>
 		</cfif>
 
-		<cfreturn true />
+		<cfreturn retVal />
 	</cffunction>
 
 	<!---Deletes selected categories/activities--->

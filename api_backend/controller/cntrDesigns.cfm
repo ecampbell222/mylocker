@@ -52,9 +52,12 @@
 
 		<cfset addDesigns = Factory.Designs().AddDesigns(session.authUser.shop_id, attributes.pdata1, attributes.pdata2, attributes.pdata3, attributes.is_custom, attributes.level, attributes.cat_cust) />
 		
-		<cfset designCategories = Factory.Designs().DesignCategories(session.authUser.shop_id, "my") />
-
-		<cfinclude template="#vpath#\dsp_loadDesignCategories.cfm" />
+		<cfif addDesigns EQ "noact">
+			<cfoutput>noact</cfoutput>
+		<cfelse>
+			<cfset designCategories = Factory.Designs().DesignCategories(session.authUser.shop_id, "my") />
+			<cfinclude template="#vpath#\dsp_loadDesignCategories.cfm" />
+		</cfif>
 	</cfcase>
 
 	<!-----------------------------------------------------
@@ -65,6 +68,20 @@
 		<cfset attributes.layout = "layout_ajax.cfm" />
 
 		<cfset deleteCustom = Factory.Designs().DeleteCustom(session.authUser.shop_id, attributes.cat_id, attributes.cat_cust_id, attributes.activity_id, attributes.is_custom) />
+	</cfcase>
+
+	<!-----------------------------------------------------
+	----AddCustom
+	-----
+	------------------------------------------------------>
+	<cfcase value="AddCustom">
+		<cfset attributes.layout = "layout_ajax.cfm" />
+
+		<cfset addCustom = Factory.Designs().AddCustom(session.authUser.shop_id, attributes.cat_id, attributes.cat_cust_id, attributes.is_custom, attributes.category_name) />
+		<cfif addCustom EQ "dup">
+			<cfoutput>dup</cfoutput>
+		</cfif>		
+
 	</cfcase>
 
 	<!-----------------------------------------------------
