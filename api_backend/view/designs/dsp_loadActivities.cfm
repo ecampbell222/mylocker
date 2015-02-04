@@ -8,18 +8,23 @@
 </cfif>
 <cfoutput query="activities">
 	<li>	
-		<span data-list="#attributes.list_type#" data-custom="#activities.isCustom#" data-shop="#session.authUser.shop_id#" data-item="#activities.activity_id#" data-item2="#attributes.cat_id#" data-item3="#attributes.cat_id_cust#" data-level="activity" data-cat-custom="#attributes.is_custom#" data-loaded="0" <cfif attributes.list_type IS "mylocker">style="cursor: pointer;"</cfif>>
+		<span data-list="#attributes.list_type#" data-custom="#activities.isCustom#" data-item="#activities.activity_id#" data-item2="#attributes.cat_id#" data-item3="#attributes.cat_id_cust#" data-level="activity" data-cat-custom="#attributes.is_custom#" data-loaded="0" <cfif attributes.list_type IS "mylocker">style="cursor: pointer;"</cfif>>
 			#activities.name# 
 		</span>
-		<cfif attributes.list_type IS "mylocker" AND activities.isCustom IS "1">
-			<a data-toggle="confirmation" data-placement="top" onConfirm="deleteCustom('#attributes.cat_id#','#attributes.cat_id_cust#','#activities.activity_id#', '#attributes.is_custom#');">
-				<i class="glyphicon glyphicon-remove" aria-hidden="true"></i>
-			</a>
-		</cfif>	
-		<cfif attributes.list_type IS NOT "mylocker">
-			<a data-toggle="confirmation" data-placement="top" onConfirm="deleteDesign('#session.authUser.shop_id#','#attributes.cat_id#','#attributes.cat_id_cust#','#activities.activity_id#','activity', '#activities.isCustom#');">
-				<i class="glyphicon glyphicon-remove" aria-hidden="true"></i>
-			</a>
+		<cfif aCount GT 0>
+			<i class="glyphicon glyphicon-ban-circle" aria-hidden="true" title="You cannot delete this activity because it is in use by the logos."></i>
+		<cfelse>		
+			<cfif attributes.list_type IS "mylocker" AND activities.isCustom IS "1">
+				<a data-toggle="confirmation" data-placement="top" onConfirm="deleteCustom('#attributes.cat_id#','#attributes.cat_id_cust#','#activities.activity_id#', '#attributes.is_custom#');">
+					<i class="glyphicon glyphicon-remove" aria-hidden="true"></i>
+				</a>
+			<cfelse>
+				<cfif attributes.list_type NEQ "mylocker">
+					<a data-toggle="confirmation" data-placement="top" onConfirm="deleteDesign('#attributes.cat_id#','#attributes.cat_id_cust#','#activities.activity_id#','activity', '#activities.isCustom#');">
+						<i class="glyphicon glyphicon-remove" aria-hidden="true"></i>
+					</a>
+				</cfif>
+			</cfif>
 		</cfif>
 	</li>
 </cfoutput>

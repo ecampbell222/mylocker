@@ -113,13 +113,12 @@ function SaveShowMyUploads(){
 		}
 	});	
 }
-function loadActivities(shopid, catid, catidcust, iscustom, list){
+function loadActivities(catid, catidcust, iscustom, list){
 	$.ajax({
 		type: 'POST',
 		url: '/?t=d.LoadActivities',
 		dataType: 'html',
 		data:{
-			shop_id: shopid,
 			cat_id: catid,
 			cat_id_cust: catidcust,
 			is_custom: iscustom,
@@ -137,13 +136,12 @@ function loadActivities(shopid, catid, catidcust, iscustom, list){
 		}
 	});	
 }
-function addToMyDesigns(shopid, data1, data2, data3, iscustom, plevel, catcust){
+function addToMyDesigns(data1, data2, data3, iscustom, plevel, catcust){
 	$.ajax({
 		type: 'POST',
 		url: '/?t=d.AddDesigns',
 		dataType: 'html',
 		data:{
-			shop_id: shopid,
 			pdata1: data1,
 			pdata2: data2,
 			pdata3: data3,
@@ -169,14 +167,13 @@ function addToMyDesigns(shopid, data1, data2, data3, iscustom, plevel, catcust){
 	});
 }
 
-function deleteDesign(shopid, catid, catidcust, pdata, plevel, iscustom){
+function deleteDesign(catid, catidcust, pdata, plevel, iscustom){
 	//alert(catid + "," + catidcust + "," + pdata + "," + plevel + "," + iscustom);
 	$.ajax({
 		type: 'POST',
 		url: '/?t=d.DeleteDesigns',
 		dataType: 'html',
 		data:{
-			shop_id: shopid,
 			cat_id: catid,
 			cat_id_cust: catidcust,
 			data: pdata,
@@ -206,7 +203,7 @@ function setDesignsTree(){
 	 
 	        if ($(this).attr('data-loaded') == 0){
 		        if ($(this).attr('data-level') == "group"){
-		        	loadActivities($(this).attr('data-shop'), $(this).attr('data-item2'), $(this).attr('data-item3'), $(this).attr('data-custom'), $(this).attr('data-list'));
+		        	loadActivities($(this).attr('data-item2'), $(this).attr('data-item3'), $(this).attr('data-custom'), $(this).attr('data-list'));
 		        	$(this).attr('data-loaded','1');
 		        } 
 	        }
@@ -231,7 +228,7 @@ function setDesignsTree(){
 				$(this).find(".placeholder").remove();			
 				var list = $("<li class='parent_li'></li>").html(ui.draggable.html());
 				$(list).appendTo(this);
-				addToMyDesigns(ui.draggable.attr('data-shop'), ui.draggable.attr('data-item'), ui.draggable.attr('data-item2'), ui.draggable.attr('data-item3'), ui.draggable.attr('data-custom'), ui.draggable.attr('data-level'), ui.draggable.attr('data-cat-custom'));
+				addToMyDesigns(ui.draggable.attr('data-item'), ui.draggable.attr('data-item2'), ui.draggable.attr('data-item3'), ui.draggable.attr('data-custom'), ui.draggable.attr('data-level'), ui.draggable.attr('data-cat-custom'));
 			}
 		}
 	})

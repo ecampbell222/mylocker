@@ -16,26 +16,54 @@
 		<cfquery name="local.getShopCategories" datasource="cwdbsql">
 			SELECT case when isCustom = 0 then category_id else 0 end as cat_id,
 			case when isCustom = 1 then category_id else 0 end as custom_cat_id, 
-			description, isCustom FROM
+			description, isCustom, sum(isActive) as aCount, api_designcategory_id FROM
 			<cfif arguments.list_type IS NOT "mylocker">
-				(SELECT c.category_id, description, 0 as isCustom FROM shop_Category c
+				(SELECT c.category_id, description, 0 as isCustom, 
+				(
+					select count(*) from api_designcategory_activities apa1
+					where apa1.category_id = apd1.category_id and apa1.isActive = 1
+					AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+				) as isActive, apd1.api_designcategory_id
+				FROM shop_Category c
 				INNER JOIN api_designcategories apd1 ON c.category_id = apd1.category_id
 				WHERE description <> 'Custom' 
 				AND apd1.shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
 				UNION
-				SELECT cs.category_id, description, 1 as isCustom FROM shop_Category_Custom cs
+				SELECT cs.category_id, description, 1 as isCustom, 
+				(
+					select count(*) from api_designcategory_activities apa2
+					where apa2.category_custom_id = apd2.category_custom_id and apa2.isActive = 1
+					AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+				) as isActive, apd2.api_designcategory_id
+				FROM shop_Category_Custom cs
 				INNER JOIN api_designcategories apd2 ON cs.category_id = apd2.category_custom_id
 				WHERE apd2.shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
 				) 
 			<cfelse>
-				(SELECT category_id, description, 0 as isCustom FROM shop_Category c 
-					WHERE description <> 'Custom'
-					UNION
-					SELECT category_id, description, 1 as isCustom FROM shop_Category_Custom cs
-					WHERE shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+				(SELECT category_id, description, 0 as isCustom, 
+				(
+					SELECT count(*) FROM api_designcategory_activities apa3 
+					WHERE apa3.category_id = c.category_id
+					AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+					AND isActive = 1
+				)  as isActive, 0 as api_designcategory_id
+				FROM shop_Category c 
+				WHERE description <> 'Custom'
+				UNION
+				SELECT category_id, description, 1 as isCustom, 
+				(
+					SELECT count(*) FROM api_designcategory_activities apa4 
+					WHERE apa4.category_custom_id = cs.category_id
+					AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+					AND isActive = 1
+				)  as isActive, 0 as api_designcategory_id
+				FROM shop_Category_Custom cs
+				WHERE shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
 				)
 			</cfif>
 			AS cat 
+			GROUP BY case when isCustom = 0 then category_id else 0 end, 
+			case when isCustom = 1 then category_id else 0 end, description, isCustom, api_designcategory_id
 			ORDER BY description
 		</cfquery>
 
@@ -80,25 +108,49 @@
 		<cfset var local = {} />
 
 		<cfquery name="local.getActivities" datasource="cwdbsql">
-			SELECT act.activity_id, act.isCustom, act.name FROM 
+			SELECT act.activity_id, act.isCustom, act.name, sum(actCount) as aCount FROM 
 			<cfif arguments.is_custom EQ "1">
-				(SELECT activity_id, 1 as isCustom, name FROM 
-				activity_custom WHERE category_cust_id = <cfqueryparam value="#passCatID#" cfsqltype="cf_sql_bigint" /> 
+				(SELECT activity_id, 1 as isCustom, name,
+				(
+					SELECT count(*) FROM api_designcategory_activities apa1 
+					WHERE apa1.activity_id = ac.activity_id
+					AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+					AND isActive = 1
+				)  as actCount
+				FROM activity_custom ac 
+				WHERE category_cust_id = <cfqueryparam value="#passCatID#" cfsqltype="cf_sql_bigint" /> 
 				AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />) act
 				<cfif arguments.list_type NEQ "mylocker">
 					INNER JOIN api_designcategory_activities api on act.activity_id = api.activity_id
 					AND act.isCustom = api.isCustom AND api.category_custom_id = <cfqueryparam value="#passCatID#" cfsqltype="cf_sql_bigint" />
 				</CFIF>
 			<cfelse>
-				(SELECT activity_id, 0 as isCustom, name FROM activity WHERE category_id = <cfqueryparam value="#passCatID#" cfsqltype="cf_sql_bigint" />
+				(SELECT activity_id, 0 as isCustom, name,
+				(
+					SELECT count(*) FROM api_designcategory_activities apa2 
+					WHERE apa2.activity_id = ac.activity_id
+					AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+					AND isActive = 1
+				)  as actCount					
+				FROM activity ac
+				WHERE category_id = <cfqueryparam value="#passCatID#" cfsqltype="cf_sql_bigint" />
 				UNION
-				SELECT activity_id, 1 as isCustom, name FROM activity_custom WHERE category_id = <cfqueryparam value="#passCatID#" cfsqltype="cf_sql_bigint" />
+				SELECT activity_id, 1 as isCustom, name,
+				(
+					SELECT count(*) FROM api_designcategory_activities apa3 
+					WHERE apa3.activity_id = ac.activity_id
+					AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+					AND isActive = 1
+				)  as actCount			
+				FROM activity_custom ac 
+				WHERE category_id = <cfqueryparam value="#passCatID#" cfsqltype="cf_sql_bigint" />
 				AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />) act
 				<cfif arguments.list_type NEQ "mylocker">
 					INNER JOIN api_designcategory_activities api on act.activity_id = api.activity_id
 					AND act.isCustom = api.isCustom AND api.category_id = <cfqueryparam value="#passCatID#" cfsqltype="cf_sql_bigint" />
 				</cfif>
 			</cfif>
+			GROUP BY act.activity_id, act.isCustom, act.name
 			ORDER BY name
 		</cfquery>
 
@@ -405,8 +457,7 @@
 		<!---Delete individual activities--->
 		<cfquery name="local.deleteActivities" datasource="cwdbsql">
 			DELETE FROM api_designcategory_activities 
-			WHERE isCustom = <cfqueryparam value="#arguments.is_custom#" cfsqltype="cf_sql_int" />
-			AND shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+			WHERE shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
 			<cfif arguments.is_custom EQ "1">
 				AND category_custom_id = <cfqueryparam value="#arguments.category_cust_id#" cfsqltype="cf_sql_bigint" />
 			<cfelse>
