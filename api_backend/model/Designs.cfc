@@ -348,12 +348,17 @@
 
 			<!---Select all activities to be inserted--->
 			<cfquery name="local.insertActivities" datasource="cwdbsql">
-				INSERT INTO api_designcategory_activities (category_id, category_custom_id, activity_id, shop_id, isActive, isCustom)
-				SELECT insCatID, insCustCatID, insActID, insShopID, 0, insCustom FROM
+				INSERT INTO api_designcategory_activities (api_designcategory_id, category_id, category_custom_id, activity_id, shop_id, isActive, isCustom)
+				SELECT api_designcategory_id, insCatID, insCustCatID, insActID, insShopID, 0, insCustom FROM
 				<cfif arguments.level IS "activity">
 					<cfif arguments.cat_cust EQ "1">
 						<!---Insert single custom activity from custom category--->
-						(SELECT 0 as insCatID, category_cust_id as insCustCatID, activity_id as insActID, 
+						(SELECT (
+							SELECT api_designcategory_id
+							FROM api_designcategories
+							WHERE shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+							AND category_custom_id = <cfqueryparam value="#arguments.category_cust_id#" cfsqltype="cf_sql_bigint" />  
+						) as api_designcategory_id, 0 as insCatID, category_cust_id as insCustCatID, activity_id as insActID, 
 						shop_id as insShopID, 1 as insCustom 
 						FROM activity_custom ac 
 						WHERE shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
@@ -369,7 +374,12 @@
 					<cfelse>
 						<cfif arguments.is_custom EQ "1">
 							<!---insert single custom activity from regular category--->
-							(SELECT category_id as insCatID, 0 as insCustCatID, activity_id as insActID, 
+							(SELECT (
+								SELECT api_designcategory_id
+								FROM api_designcategories
+								WHERE shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+								AND category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />  
+							) as api_designcategory_id,	category_id as insCatID, 0 as insCustCatID, activity_id as insActID, 
 							shop_id as insShopID, 1 as insCustom 
 							FROM activity_custom ac 
 							WHERE shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
@@ -384,7 +394,12 @@
 							)) as cst
 						<cfelse>
 							<!---insert single regular activity from regular category--->
-							(SELECT category_id as insCatID, 0 as insCustCatID, activity_id as insActID, 
+							(SELECT (
+								SELECT api_designcategory_id
+								FROM api_designcategories
+								WHERE shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+								AND category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />  
+							) as api_designcategory_id, category_id as insCatID, 0 as insCustCatID, activity_id as insActID, 
 							'#arguments.shop_id#' as insShopID, 0 as insCustom 
 							FROM activity ac 
 							WHERE category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" /> 
@@ -400,7 +415,12 @@
 				<cfelse>
 					<cfif arguments.is_custom EQ "1">
 						<!---insert all custom activites from custom category--->
-						(SELECT 0 as insCatID, category_cust_id as insCustCatID, activity_id as insActID, 
+						(SELECT (
+							SELECT api_designcategory_id
+							FROM api_designcategories
+							WHERE shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+							AND category_custom_id = <cfqueryparam value="#arguments.category_cust_id#" cfsqltype="cf_sql_bigint" />  
+						) as api_designcategory_id, 0 as insCatID, category_cust_id as insCustCatID, activity_id as insActID, 
 						shop_id as insShopID, 1 as insCustom 
 						FROM activity_custom ac 
 						WHERE shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
@@ -413,8 +433,12 @@
 						)) as cst
 					<cfelse>
 						<!---insert all activites from regular category--->
-						(
-						SELECT category_id as insCatID, 0 as insCustCatID, activity_id as insActID, 
+						(SELECT (
+							SELECT api_designcategory_id
+							FROM api_designcategories
+							WHERE shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+							AND category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />  
+						) as api_designcategory_id, category_id as insCatID, 0 as insCustCatID, activity_id as insActID, 
 						shop_id as insShopID, 1 as insCustom 
 						FROM activity_custom ac 
 						WHERE shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
@@ -425,7 +449,12 @@
 							AND api.shop_id = ac.shop_id
 							AND isCustom = 1
 						) UNION
-						SELECT category_id as insCatID, 0 as insCustCatID, activity_id as insActID, 
+						SELECT (
+							SELECT api_designcategory_id
+							FROM api_designcategories
+							WHERE shop_id = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#arguments.shop_id#" />
+							AND category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" />  
+						) as api_designcategory_id, category_id as insCatID, 0 as insCustCatID, activity_id as insActID, 
 						'#arguments.shop_id#' as insShopID, 0 as insCustom 
 						FROM activity ac 
 						WHERE category_id = <cfqueryparam value="#arguments.category_id#" cfsqltype="cf_sql_bigint" /> 
