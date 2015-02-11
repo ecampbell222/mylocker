@@ -242,10 +242,12 @@
 				document.getElementById("imgViewMore").src = globalHideViewMore;
 			}			
 		}
-		if (parent.showMenu)
-			btnMoreProducts.onclick = parent.showMenu;
-		else
-			btnMoreProducts.onclick = showMoreProductsOverlay;
+		try{
+			if (parent.showMenu)
+				btnMoreProducts.onclick = parent.showMenu;
+			else
+				btnMoreProducts.onclick = showMoreProductsOverlay;
+		}catch(e){}
 
 
 		if (!isNaN(globalDefaultActivity) && globalDefaultActivityText !== '') {
@@ -487,7 +489,12 @@
 //console.log(e);
 		}
 	}
+	function adRollTrackEvent(_event){
+		try{
+		    parent.__adroll.record_user({"adroll_segments": _event})    
+		} catch(err) {}
 
+	}
 	function loadXMLDoc() {
 		//see if product image has loaded to ensure we have height
 		if (products['prod_'+selectedProduct].frontImg.width==0 ||  typeof backproducts['prod_'+selectedProduct]=='undefined' ? false : backproducts['prod_'+selectedProduct].frontImg.width==0){
@@ -3122,7 +3129,9 @@
 //console.log(retval);
 			if (typeof retval == 'object') {
 				// update cart display on the parent
-				if (parent.updateCartDisplay) parent.updateCartDisplay(retval.CART_TOTAL_ITEMS,retval.CART_TOTAL_PRICE);
+				try{
+					if (parent.updateCartDisplay) parent.updateCartDisplay(retval.CART_TOTAL_ITEMS,retval.CART_TOTAL_PRICE);
+				}catch(e){}
 
 				if (globalSkuPrice == "" || globalSkuPrice == "0.00") window.parent.location=globalCartHost+'/showcart.cfm?sc_id='+globalScId+'&redirecFlag=1';
 
@@ -3460,13 +3469,17 @@
 
 	function externalActivitySelector() {
 		retval = false;
-		if (window.parent.$) {
-			if (window.parent.$('#activity_selector_overlay').overlay) {
-				if (window.parent.$('#activity_selector_overlay').overlay().load) {
-					retval = true;
+		
+		try{
+			if (window.parent.$) {
+				if (window.parent.$('#activity_selector_overlay').overlay) {
+					if (window.parent.$('#activity_selector_overlay').overlay().load) {
+						retval = true;
+					}
 				}
 			}
-		}
+		}catch(e) {}
+
 		return retval;
 	}
 

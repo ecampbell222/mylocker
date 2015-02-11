@@ -1,7 +1,7 @@
 <cfcomponent displayname="Product" hint="Manage Products" output="false">
 
-	<cfset dsn = "cwdbsql" />						<!--- Datasource name --->
-	
+	<cfset dsn = "cwdbsqlAPI" />						<!--- Datasource name --->
+
 	<cffunction name="getAllCategories" output="false" returntype="query" access="remote">
 		<cfquery name="qryCategories" datasource="#variables.dsn#">
 			SELECT DISTINCT	pc.category_ID CATEGORYID,
@@ -16,7 +16,7 @@
 	<cffunction name="getAPIProductExists" output="false" returntype="query" access="remote">
 		<cfargument name="productCategory_id" required="false" default="1" />
 		<cfargument name="sc_id" required="false" default="MI4809166422" />
-		
+
 		<cfquery name="qryAPIProductExists" datasource="#dsn#">
 			SELECT count(*) as apiProductExistsCount
 			FROM shop_products sp
@@ -28,7 +28,7 @@
 	</cffunction>
 
 
-	
+
 	<cffunction access="Remote" name="getProduct" returnType="Query">
 		<cfargument name="viewType_id" required="false" default="1" />
 		<cfargument name="productCategory_id" required="false" default="1" />
@@ -42,9 +42,9 @@
 		<cfargument name="prodid7" required="false" default="0" />
 		<cfargument name="prodid8" required="false" default="0" />
 		<cfargument name="prodid9" required="false" default="0" />
-		<cfargument name="prodid10" required="false" default="0" />		
-		<cfargument name="apiProductExists" required="false" default="0" />	
-		<cfargument name="shopID" required="false" default="0" />	
+		<cfargument name="prodid10" required="false" default="0" />
+		<cfargument name="apiProductExists" required="false" default="0" />
+		<cfargument name="shopID" required="false" default="0" />
 
 		<cfsavecontent variable="tmp">
 			<cfdump var="#arguments#">
@@ -60,17 +60,17 @@
 		<cfquery name="getProductQuery" datasource="#dsn#">
 			SELECT 	pv.product_id PRODUCTID,
 					pv.designType_id DESIGNTYPEID,
-					pv.imageFilename IMAGEFILENAME, 
-					pv.centerOffsetX CENTEROFFSETX, 
-					pv.centerOffsetY CENTEROFFSETY, 
+					pv.imageFilename IMAGEFILENAME,
+					pv.centerOffsetX CENTEROFFSETX,
+					pv.centerOffsetY CENTEROFFSETY,
 					pv.isColorable ISCOLORABLE,
 					pv.initialScale INITIALSCALE,
-					pv.designScale DESIGNSCALE, 
+					pv.designScale DESIGNSCALE,
 					pv.designRotation DESIGNROTATION,
-					pv.designOffsetX DESIGNOFFSETX, 
+					pv.designOffsetX DESIGNOFFSETX,
 					pv.designOffsetY DESIGNOFFSETY,
 					pv.designBoxedView DESIGNBOXEDVIEW,
-					pv.sizeChart SIZECHART, 
+					pv.sizeChart SIZECHART,
 					c.hex HEXCOLOR,
 					c.descr COLORDESCR,
 					cSecondary.hex HEXCOLORSECONDARY,
@@ -104,17 +104,17 @@
 			UNION
 			SELECT 	pv.product_id PRODUCTID,
 					pv.designType_id DESIGNTYPEID,
-					pv.imageFilename IMAGEFILENAME, 
-					pv.centerOffsetX CENTEROFFSETX, 
-					pv.centerOffsetY CENTEROFFSETY, 
+					pv.imageFilename IMAGEFILENAME,
+					pv.centerOffsetX CENTEROFFSETX,
+					pv.centerOffsetY CENTEROFFSETY,
 					pv.isColorable ISCOLORABLE,
 					pv.initialScale INITIALSCALE,
-					pv.designScale DESIGNSCALE, 
+					pv.designScale DESIGNSCALE,
 					pv.designRotation DESIGNROTATION,
-					pv.designOffsetX DESIGNOFFSETX, 
+					pv.designOffsetX DESIGNOFFSETX,
 					pv.designOffsetY DESIGNOFFSETY,
 					pv.designBoxedView DESIGNBOXEDVIEW,
-					pv.sizeChart SIZECHART, 
+					pv.sizeChart SIZECHART,
 					c.hex HEXCOLOR,
 					c.descr COLORDESCR,
 					cSecondary.hex HEXCOLORSECONDARY,
@@ -135,7 +135,7 @@
 				AND pv.viewType_id = #viewType_id#
 				AND p.product_OnWeb = 1
 				AND p.product_Archive = 0
-				AND NOT EXISTS ( 
+				AND NOT EXISTS (
 					SELECT pv.product_id
 					FROM [Product_View]
 					WHERE ( pv.product_id = #prodid1#
@@ -154,12 +154,12 @@
 		</cfquery>
 		<cfreturn getProductQuery />
 	</cffunction>
-	
+
 	<cffunction access="Remote" name="getProductDiscountLevels" returnType="Query">
 		<cfargument name="product_id" required="false" default="0" />
 		<cfquery name="getProductDiscountLevels" datasource="#dsn#">
-			SELECT		dl.quantity_start qstart, 
-						dl.quantity_end qend, 
+			SELECT		dl.quantity_start qstart,
+						dl.quantity_end qend,
 						pdl.discount d1, pdl.discount2 d2, pdl.discount3 d3, pdl.discount4 d4,
 						pcdl.discount cd1, pcdl.discount2 cd2, pcdl.discount3 cd3, pcdl.discount4 cd4
 			FROM		tbl_prdtcat_rel pcr
@@ -170,7 +170,7 @@
 		</cfquery>
 		<cfreturn getProductDiscountLevels />
 	</cffunction>
-	
+
 	<cffunction access="Remote" name="getProductViewTypes" returnType="Query">
 		<cfargument name="productCategory_id" required="false" default="1" />
 		<cfquery name="getProductViewTypes" datasource="#dsn#">
@@ -186,22 +186,22 @@
 		<cfargument name="product_id" required="false" default="0" />
 		<cfargument name="globalAPIProductExists" required="false" default="0" />
 		<cfargument name="globalScId" required="false" default="" />
-		
+
 		<cfif globalAPIProductExists eq "0">
 			<cfquery name="getProductSizeSKUs" datasource="#dsn#">
-				SELECT 
-					s.SKU_ID SKUID, 
-					s.SKU_MerchSKUID MERCHANTSKU, 
-					s.SKU_Price PRICE, 
-					so.option_Name SIZE, 
+				SELECT
+					s.SKU_ID SKUID,
+					s.SKU_MerchSKUID MERCHANTSKU,
+					s.SKU_Price PRICE,
+					so.option_Name SIZE,
 					so.option_Sort SORTORDER
 				FROM tbl_skus s
 					LEFT OUTER JOIN ((tbl_list_optiontypes ot
-					INNER JOIN tbl_skuoptions so ON ot.optiontype_ID = so.option_Type_ID) 
-					INNER JOIN tbl_skuoption_rel r ON so.option_ID = r.optn_rel_Option_ID) ON s.SKU_ID = r.optn_rel_SKU_ID 
-				WHERE 
+					INNER JOIN tbl_skuoptions so ON ot.optiontype_ID = so.option_Type_ID)
+					INNER JOIN tbl_skuoption_rel r ON so.option_ID = r.optn_rel_Option_ID) ON s.SKU_ID = r.optn_rel_SKU_ID
+				WHERE
 					s.SKU_ProductID = #product_id#
-					AND s.SKU_ShowWeb = 1 
+					AND s.SKU_ShowWeb = 1
 					AND (ot.optiontype_ID = 1 OR ot.optiontype_ID IS NULL)
 					AND (so.option_Name NOT IN ('Free S','Free M','Free L','Free XL','Free XXL','Free XXXL') OR so.option_Name IS NULL)
 				ORDER BY
@@ -209,11 +209,11 @@
 			</cfquery>
 		<cfelse>
 			<cfquery name="getProductSizeSKUs" datasource="#dsn#">
-				exec spAPILookupPrice 
+				exec spAPILookupPrice
 				@ShopID = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#globalScId#" />,
-				@ProductID = <cfqueryparam cfsqltype="cf_sql_integer" value="#product_id#" />, 
-				@ShowCost = 0, 
-				@CalcSizeType = 0 			
+				@ProductID = <cfqueryparam cfsqltype="cf_sql_integer" value="#product_id#" />,
+				@ShowCost = 0,
+				@CalcSizeType = 0
 			</cfquery>
 		</cfif>
 		<cfreturn getProductSizeSKUs />
@@ -242,7 +242,7 @@
 					designScale = <cfqueryparam cfsqltype="cf_sql_float" list="false" null="false" value="#designScale#" />,
 					designRotation = <cfqueryparam cfsqltype="cf_sql_float" list="false" null="false" value="#designRotation#" />
 				FROM Product_View pv
-				INNER JOIN viewType vt ON pv.viewType_id = vt.viewType_id 
+				INNER JOIN viewType vt ON pv.viewType_id = vt.viewType_id
 				WHERE productCategory_id = <cfqueryparam cfsqltype="bigint" null="false" list="false" value="#productCategory_id#" />
 					AND vt.viewType = <cfqueryparam cfsqltype="varchar" null="false" list="false" value="#viewType#" />
 					<cfif saveFullCategory is not 1>
@@ -301,17 +301,17 @@
 				SELECT TOP 1
 					pv.product_id PRODUCTID,
 					pv.designType_id DESIGNTYPEID,
-					pv.imageFilename IMAGEFILENAME, 
-					pv.centerOffsetX CENTEROFFSETX, 
-					pv.centerOffsetY CENTEROFFSETY, 
+					pv.imageFilename IMAGEFILENAME,
+					pv.centerOffsetX CENTEROFFSETX,
+					pv.centerOffsetY CENTEROFFSETY,
 					pv.isColorable ISCOLORABLE,
 					pv.initialScale INITIALSCALE,
-					pv.designScale DESIGNSCALE, 
+					pv.designScale DESIGNSCALE,
 					pv.designRotation DESIGNROTATION,
-					pv.designOffsetX DESIGNOFFSETX, 
+					pv.designOffsetX DESIGNOFFSETX,
 					pv.designOffsetY DESIGNOFFSETY,
 					pv.designBoxedView DESIGNBOXEDVIEW,
-					pv.sizeChart SIZECHART, 
+					pv.sizeChart SIZECHART,
 					c.hex HEXCOLOR,
 					c.descr COLORDESCR,
 					cSecondary.hex HEXCOLORSECONDARY,
@@ -343,23 +343,23 @@
 		<cfargument name="prodid7" required="false" default="0" />
 		<cfargument name="prodid8" required="false" default="0" />
 		<cfargument name="prodid9" required="false" default="0" />
-		<cfargument name="prodid10" required="false" default="0" />		
+		<cfargument name="prodid10" required="false" default="0" />
 		<cfquery name="getProductQuery" datasource="#dsn#">
 			SELECT 	pv.product_id PRODUCTID,
 					pv.designType_id DESIGNTYPEID,
-					pv.imageFilename IMAGEFILENAME, 
-					pv.centerOffsetX CENTEROFFSETX, 
-					pv.centerOffsetY CENTEROFFSETY, 
+					pv.imageFilename IMAGEFILENAME,
+					pv.centerOffsetX CENTEROFFSETX,
+					pv.centerOffsetY CENTEROFFSETY,
 					pv.isColorable ISCOLORABLE,
 					pv.initialScale INITIALSCALE,
-					pv.designScale DESIGNSCALE, 
+					pv.designScale DESIGNSCALE,
 					pv.designRotationX DESIGNROTATIONX,
 					pv.designRotationY DESIGNROTATIONY,
 					pv.designRotationZ DESIGNROTATIONZ,
-					pv.designOffsetX DESIGNOFFSETX, 
+					pv.designOffsetX DESIGNOFFSETX,
 					pv.designOffsetY DESIGNOFFSETY,
 					pv.designBoxedView DESIGNBOXEDVIEW,
-					pv.sizeChart SIZECHART, 
+					pv.sizeChart SIZECHART,
 					c.hex HEXCOLOR,
 					c.descr COLORDESCR,
 					cSecondary.hex HEXCOLORSECONDARY,
@@ -386,19 +386,19 @@
 			UNION
 			SELECT 	pv.product_id PRODUCTID,
 					pv.designType_id DESIGNTYPEID,
-					pv.imageFilename IMAGEFILENAME, 
-					pv.centerOffsetX CENTEROFFSETX, 
-					pv.centerOffsetY CENTEROFFSETY, 
+					pv.imageFilename IMAGEFILENAME,
+					pv.centerOffsetX CENTEROFFSETX,
+					pv.centerOffsetY CENTEROFFSETY,
 					pv.isColorable ISCOLORABLE,
 					pv.initialScale INITIALSCALE,
-					pv.designScale DESIGNSCALE, 
+					pv.designScale DESIGNSCALE,
 					pv.designRotationX DESIGNROTATIONX,
 					pv.designRotationY DESIGNROTATIONY,
 					pv.designRotationZ DESIGNROTATIONZ,
-					pv.designOffsetX DESIGNOFFSETX, 
+					pv.designOffsetX DESIGNOFFSETX,
 					pv.designOffsetY DESIGNOFFSETY,
 					pv.designBoxedView DESIGNBOXEDVIEW,
-					pv.sizeChart SIZECHART, 
+					pv.sizeChart SIZECHART,
 					c.hex HEXCOLOR,
 					c.descr COLORDESCR,
 					cSecondary.hex HEXCOLORSECONDARY,
@@ -412,7 +412,7 @@
 				AND pv.viewType_id = #viewType_id#
 				AND p.product_OnWeb = 1
 				AND p.product_Archive = 0
-				AND NOT EXISTS ( 
+				AND NOT EXISTS (
 					SELECT pv.product_id
 					FROM [Product_View]
 					WHERE ( pv.product_id = #prodid1#
@@ -431,7 +431,7 @@
 		</cfquery>
 		<cfreturn getProductQuery />
 	</cffunction>
-	
+
 	<cffunction access="Remote" name="getNewProductBySKU" returntype="Query">
 		<cfargument name="sku_id" required="false" default="0" />
 		<cfargument name="viewType_id" required="false" default="1" />
@@ -440,19 +440,19 @@
 				SELECT TOP 1
 					pv.product_id PRODUCTID,
 					pv.designType_id DESIGNTYPEID,
-					pv.imageFilename IMAGEFILENAME, 
-					pv.centerOffsetX CENTEROFFSETX, 
-					pv.centerOffsetY CENTEROFFSETY, 
+					pv.imageFilename IMAGEFILENAME,
+					pv.centerOffsetX CENTEROFFSETX,
+					pv.centerOffsetY CENTEROFFSETY,
 					pv.isColorable ISCOLORABLE,
 					pv.initialScale INITIALSCALE,
-					pv.designScale DESIGNSCALE, 
+					pv.designScale DESIGNSCALE,
 					pv.designRotationX DESIGNROTATIONX,
 					pv.designRotationY DESIGNROTATIONY,
 					pv.designRotationZ DESIGNROTATIONZ,
-					pv.designOffsetX DESIGNOFFSETX, 
+					pv.designOffsetX DESIGNOFFSETX,
 					pv.designOffsetY DESIGNOFFSETY,
 					pv.designBoxedView DESIGNBOXEDVIEW,
-					pv.sizeChart SIZECHART, 
+					pv.sizeChart SIZECHART,
 					c.hex HEXCOLOR,
 					c.descr COLORDESCR,
 					cSecondary.hex HEXCOLORSECONDARY,
@@ -484,7 +484,7 @@
 						SET imageFilename = <cfqueryparam cfsqltype="cf_sql_varchar" list="false" null="false" value="#filename#" />,
 							designBoxedView = 0
 						FROM Product_View pv
-						INNER JOIN viewType vt ON pv.viewType_id = vt.viewType_id 
+						INNER JOIN viewType vt ON pv.viewType_id = vt.viewType_id
 						WHERE productCategory_id = <cfqueryparam cfsqltype="cf_sql_bigint" null="false" list="false" value="#productCategory_id#" />
 							AND vt.viewType = <cfqueryparam cfsqltype="cf_sql_varchar" null="false" list="false" value="#viewType#" />
 							AND product_id = <cfqueryparam cfsqltype="cf_sql_bigint" null="false" list="false" value="#product_id#" />
@@ -500,7 +500,7 @@
 						SET imageFilename = <cfqueryparam cfsqltype="cf_sql_varchar" list="false" null="false" value="#filename#" />,
 							designBoxedView = 1
 						FROM Product_View pv
-						INNER JOIN viewType vt ON pv.viewType_id = vt.viewType_id 
+						INNER JOIN viewType vt ON pv.viewType_id = vt.viewType_id
 						WHERE productCategory_id = <cfqueryparam cfsqltype="cf_sql_bigint" null="false" list="false" value="#productCategory_id#" />
 							AND vt.viewType = <cfqueryparam cfsqltype="cf_sql_varchar" null="false" list="false" value="#viewType#" />
 							AND product_id = <cfqueryparam cfsqltype="cf_sql_bigint" null="false" list="false" value="#product_id#" />
@@ -513,7 +513,7 @@
 		</cfif>
 		<cfreturn "success" />
 	</cffunction>
-	
+
 	<cffunction access="Remote" name="getCatalogMenu" returnType="Query">
 		<cfargument name="schoolsId" required="false" default="0" />
 		<cfquery name="catalogMenu" datasource="#dsn#">
@@ -530,8 +530,8 @@
 		<cfset productIdArray = ArrayNew(2) />
 		<cfset lastColor = '' />
 		<cfquery name="schoolCol" datasource="#variables.dsn#">
-			SELECT [color1] as col1, color2, color3, EMBROIDERLETTERS, color4 
-			FROM schoolcolors 
+			SELECT [color1] as col1, color2, color3, EMBROIDERLETTERS, color4
+			FROM schoolcolors
 			WHERE id = <cfqueryparam cfsqltype="cf_sql_varchar" value="#schoolsId#" null="no" />
 		</cfquery>
 		<!--- <cfdump var="#schoolCol#" /> --->
@@ -552,39 +552,39 @@
 		<cfif schoolcolor1 is "old gold">
 			<cfset schoolcolor1 = "gold">
 		</cfif>
-		
+
 		<cfif schoolcolor2 is "old gold">
 			<cfset schoolcolor2 = "gold">
 		</cfif>
-		
+
 		<cfif schoolcolor3 is "old gold">
 			<cfset schoolcolor3 = "gold">
 		</cfif>
-		
+
 		<cfif schoolcolor1 is "athletic gold">
 			<cfset schoolcolor1 = "gold">
 		</cfif>
-		
+
 		<cfif schoolcolor2 is "athletic gold">
 			<cfset schoolcolor2 = "gold">
 		</cfif>
-		
+
 		<cfif schoolcolor3 is "athletic gold">
 			<cfset schoolcolor3 = "gold">
 		</cfif>
-		
+
 		<cfif schoolcolor1 is "vegas gold">
 			<cfset schoolcolor1 = "gold">
 		</cfif>
-		
+
 		<cfif schoolcolor2 is "vegas gold">
 			<cfset schoolcolor2 = "gold">
 		</cfif>
-		
+
 		<cfif schoolcolor3 is "vegas gold">
 			<cfset schoolcolor3 = "gold">
 		</cfif>
-		
+
 		<cfif schoolcolor1 is "forest">
 			<cfset schoolcolor1 = "green">
 		</cfif>
@@ -629,21 +629,21 @@
 						AND		pv.viewType_id = 1
 						AND		p.product_OnWeb = 1
 						AND		p.product_Archive = 0
-						AND NOT	(pic.color != '#schoolcolor1#' AND 
-								pic.color != '#schoolcolor2#' AND 
-								pic.color != '#schoolcolor3#' AND 
-								pic.color != '#schoolcolor4#' AND 
-								pic.color != '#schoolcolor5#' AND 
+						AND NOT	(pic.color != '#schoolcolor1#' AND
+								pic.color != '#schoolcolor2#' AND
+								pic.color != '#schoolcolor3#' AND
+								pic.color != '#schoolcolor4#' AND
+								pic.color != '#schoolcolor5#' AND
 								pic.color != '#schoolcolor6#'
 								<cfif prodCategories.catalogTopCategory_id eq 2>
 									AND pic.color != 'pink'
 								</cfif>
 								)
-						AND (NOT (pic.color2 != '#schoolcolor1#' AND 
-								pic.color2 != '#schoolcolor2#' AND 
-								pic.color2 != '#schoolcolor3#' AND 
-								pic.color2 != '#schoolcolor4#' AND 
-								pic.color2 != '#schoolcolor5#' AND 
+						AND (NOT (pic.color2 != '#schoolcolor1#' AND
+								pic.color2 != '#schoolcolor2#' AND
+								pic.color2 != '#schoolcolor3#' AND
+								pic.color2 != '#schoolcolor4#' AND
+								pic.color2 != '#schoolcolor5#' AND
 								pic.color2 != '#schoolcolor6#'
 								<cfif prodCategories.catalogTopCategory_id eq 2>
 									AND pic.color2 != 'pink'
@@ -679,7 +679,7 @@
 							WHERE	color1 = '#backupColor#' or color2 = '#backupColor#'
 						</cfquery>
 						<!--- <cfoutput> results: #queryProductId.recordcount#, #queryProductId.product_id#</cfoutput> --->
-						<cfset lastColor = backupColor />	
+						<cfset lastColor = backupColor />
 					</cfif>
 					<cfif queryProductId.recordcount lt 1>
 						<!--- <cfoutput>trying backupcolor2 #backupColor2#</cfoutput> --->
@@ -689,7 +689,7 @@
 							WHERE	color1 = '#backupColor2#' or color2 = '#backupColor2#'
 						</cfquery>
 						<!--- <cfoutput> results: #queryProductId.recordcount#, #queryProductId.product_id#</cfoutput> --->
-						<cfset lastColor = backupColor2 />	
+						<cfset lastColor = backupColor2 />
 					</cfif>
 					<cfif queryProductId.recordcount lt 1>
 						<!--- <cfoutput>last resort</cfoutput> --->
@@ -724,7 +724,7 @@
 			</cfloop>
 				ORDER BY catalogCategory_id
 		</cfquery>
-		<cfreturn queryFinalProducts />	
+		<cfreturn queryFinalProducts />
 	</cffunction>
-			
+
 </cfcomponent>

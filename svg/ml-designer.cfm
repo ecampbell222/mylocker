@@ -49,8 +49,10 @@
 	<cfparam name="url.mapping_city" 				default="" />
 	<cfparam name="url.fullSizeProductImagesOnly"	default="1" />
 	<cfparam name="url.qs"							default="" />
-	<cfparam name="url.apiHideBulk"					default="0" />
-	<cfparam name="url.apiHideViewMore"				default="0" />
+	<cfparam name="url.apiHideBulk"					default="0" />				<!---Hides bulk button for API if set to 1--->
+	<cfparam name="url.apiHideViewMore"				default="0" />				<!---Hides view more products button for API if set to 1--->
+	<cfparam name="url.apiDesignCategoryID"			default="0" />				<!---Passed for activities pull down, if not passed, all activities for that store will show up--->
+	<cfparam name="url.checkout_url" 				default="" />
 
 	<!--- fix missing colors --->
 	<cfif len(url.primary) neq 10 or len(url.second) neq 10>
@@ -60,7 +62,8 @@
 	</cfif>
 
 	<!--- datasource --->
-	<cfset dsn = "cwdbsql" />
+	<cfset dsn = "cwdbsql" /> 
+	<!---cwdbsqlapi--->
 
 	<!--- domain and protocol settings --->
 	<!--- <cfset dPrefix = Left(CGI.SERVER_NAME,3) /> --->
@@ -72,26 +75,36 @@
 	<cfif dPrefix eq "dev">
 		<cfset cartHost = "http://dev.mylocker.net" />
 		<cfset mylDesign = "_lib/mylDesign.js?v=1.7" />
-		<cfset dbmobile = "_lib/ml-designer.js?v=4.5" />
+		<cfset dbmobile = "_lib/ml-designer.js?v=4.8" />
 	<cfelse>
 		<cfset cartHost = "https://www.mylocker.net" />
 		<cfset mylDesign = "_lib/mylDesign-min.js?v=1.7" />
-		<cfset dbmobile = "_lib/ml-designer-min.js?v=4.5" />
+		<cfset dbmobile = "_lib/ml-designer-min.js?v=4.8" />
+	</cfif>
+
+	<cfif url.checkout_url IS "">
+		<cfset url.checkout_url = cartHost & "/showcart.cfm?sc_id=" & url.sc_id />
+	<cfelse>
+		<cfif Find("?", url.checkout_url)>
+			<cfset url.checkout_url = url.checkout_url & "&cart_id=" & Client.CartID />
+		<cfelse>
+			<cfset url.checkout_url = url.checkout_url & "?cart_id=" & Client.CartID />
+		</cfif>
 	</cfif>
 
 	<!--- Window settings --->
 	<cfset winSize=385 />
 
 	<cfset prod=createobject("component","com.products.product") />
-	<cfset acts=createobject("component","com.mylocker.activity").list_v2(url.sc_id,url.shop_category_id) />
+	<cfset apiProductExists=prod.getAPIProductExists(url.category,url.sc_id) />
+	<cfloop query="apiProductExists"><cfset apiProductExistsVal=apiProductExists.apiProductExistsCount></cfloop>
+	<cfset acts=createobject("component","com.mylocker.activity").list_v2(url.sc_id,url.shop_category_id,apiProductExistsVal,url.apiDesignCategoryID) />
 	<cfset productViews=prod.getProductViewTypes(url.category) />
 	<cfset clrs=createobject("component","com.mylocker.color").getColorsOrdered('','','','','','','','','','','','',url.primary,url.second,url.third,'1') />
 	<cfset clrsconv=createobject("component","com.mylocker.color").getColorsConverted() />
-	<cfset apiProductExists=prod.getAPIProductExists(url.category,url.sc_id) />
-	<cfloop query="apiProductExists"><cfset apiProductExistsVal=apiProductExists.apiProductExistsCount></cfloop>
 	<cfset products=prod.getProduct(1,url.category,url.prodid,url.prodid1,url.prodid2,url.prodid3,url.prodid4,url.prodid5,url.prodid6,url.prodid7,url.prodid8,url.prodid9,url.prodid10,apiProductExistsVal,url.sc_id) />
 	<cfset backproducts=prod.getProduct(2,url.category,url.prodid,url.prodid1,url.prodid2,url.prodid3,url.prodid4,url.prodid5,url.prodid6,url.prodid7,url.prodid8,url.prodid9,url.prodid10,apiProductExistsVal,url.sc_id) />
-	
+
 	<cfquery dbtype="query" name="front">
 		Select * from products where productid=#url.prodid#
 	</cfquery>
@@ -135,7 +148,7 @@
 	</cfquery>
 	<cfquery name="topcats" datasource="#dsn#">
 		SELECT ctc.*
-		FROM 
+		FROM
 		CatalogTopCategory ctc
 		ORDER BY ctc.sortOrder
 	</cfquery>
@@ -158,11 +171,11 @@
 			<cfset url.g = uqs.g />
 		</cfif>
 	</cfif>
-	
+
 </cfsilent><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html 	xmlns="http://www.w3.org/1999/xhtml"
-		xmlns:svg="http://www.w3.org/2000/svg" 
+		xmlns:svg="http://www.w3.org/2000/svg"
 		xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
 		xmlns:xlink="http://www.w3.org/1999/xlink"
 		xmlns:ev="http://www.w3.org/2001/xml-events">
@@ -214,7 +227,12 @@
 <script type="text/javascript">
 	//<![CDATA[
 	var productViews 	= [<cfloop query="productViews">'<cfoutput>#LCase(viewType)#</cfoutput>'<cfif currentrow neq recordcount>,</cfif></cfloop>];
-	var prodNavTarget 	= window.parent.location.href + '#product-nav';
+	try{
+		var prodNavTarget	= window.parent.location.href + '#product-nav';
+
+	}catch(e){
+		var prodNavTarget 	= "" ;
+	}
 	var selectedProduct = <cfoutput>#url.prodid#</cfoutput>;
 	var selectedDC1 	= '<cfoutput>#selectedDC1#</cfoutput>';
 	var selectedDC2 	= '<cfoutput>#selectedDC2#</cfoutput>';
@@ -228,17 +246,20 @@
 	if (fullSizeProductImagesOnly == "0") {
 		pip 			= globalWinSize < 186 ? '/products/catalogsize' : globalWinSize < 221 ? '/products/cartsize' : '/products';
 	}
-	
+	<cfset appMode = "">
+	<cfif apiProductExistsVal gt 0>
+		<cfset appMode = "api">
+	</cfif>
 	<cfset randnum=randrange(40000,80000)>
-	var base_designs_url = "<cfoutput>#ht#://#dPrefix#.mylocker.net/com/designs/Designs.cfm?schoolsId=#urlEncodedFormat(url.sc_id)#&isSVG=1&nocache=#randnum#</cfoutput>";
+	var base_designs_url = "<cfoutput>#ht#://#dPrefix#.mylocker.net/com/designs/Designs.cfm?schoolsId=#urlEncodedFormat(url.sc_id)#&isSVG=1&nocache=#randnum#&appMode=#appMode#</cfoutput>";
 	//var url = base_designs_url;
 	<!--- <cfif len(url.d)>url += "<cfoutput>&d=#url.d#&g=#urlEncodedFormat(url.g)#</cfoutput>";</cfif> --->
-	var base_backurl = "<cfoutput>#ht#://#dPrefix#.MyLocker.net/com/designs/Designs.cfm?schoolsId=#urlEncodedFormat(url.sc_id)#&isSVG=1&nocache=#randnum#&designTypeId=4</cfoutput>";
+	var base_backurl = "<cfoutput>#ht#://#dPrefix#.MyLocker.net/com/designs/Designs.cfm?schoolsId=#urlEncodedFormat(url.sc_id)#&isSVG=1&nocache=#randnum#&designTypeId=4&appMode=#appMode#</cfoutput>";
 	<!--- Copy products to javascript structure --->
 	<cfoutput>
 	var products={
 		<cfloop query="products">
-			prod_#productid#:{ 
+			prod_#productid#:{
 								height 				: globalWinSize,
 								width 				: globalWinSize,
 								desc				:'#jsstringformat(COLORDESCR)#<cfif colordescrsecondary neq ""> / #jsstringformat(COLORDESCRSECONDARY)#</cfif>',
@@ -260,7 +281,7 @@
 								prodName 			: '#jsstringformat(HighAsciiSafe(PRODUCTNAME))#'
 				}<cfif currentrow neq recordcount>,</cfif>
 		</cfloop>
-		}	
+		}
 		<cfloop query="products">
 			products.prod_#productid#.frontImg.onload=function() {
 				var ls = (this.height >= this.width) ? this.height : this.width;
@@ -272,12 +293,12 @@
 				try{products.prod_#productid#.frontImg.src = products.prod_#productid#.frontImgPath;}catch(e){}
 			</cfif>
 		</cfloop>
-	
+
 	<!--- Copy products to javascript structure --->
 	var numBackProducts=#backproducts.recordcount#;
 	var backproducts={
 		<cfloop query="backproducts">
-			prod_#productid#:{ 
+			prod_#productid#:{
 								height 				: globalWinSize,
 								width 				: globalWinSize,
 								desc				:'#jsstringformat(COLORDESCR)#',
@@ -296,10 +317,10 @@
 								showFrontImage		: false,
 								prodID 				: #productid#,
 								prodName 			: '#jsstringformat(HighAsciiSafe(PRODUCTNAME))#'
-								
+
 				}<cfif currentrow neq recordcount>,</cfif>
 		</cfloop>
-		}	
+		}
 		<cfloop query="backproducts">
 			backproducts.prod_#productid#.frontImg.onload=function() {
 				var ls = (this.height >= this.width) ? this.height : this.width;
@@ -313,10 +334,10 @@
 		</cfloop>
 
 	var customizationDefaults={ //to pass in toptext,bottomtext,etc to designer
-			topText 	: 'notSet', 
+			topText 	: 'notSet',
 			initials 	: '#JSStringFormat(url.initials)#',
 			mascot 		: '#JSStringFormat(url.mascot)#',
-			schoolName 	: '#jsstringformat(url.school)#', 
+			schoolName 	: '#jsstringformat(url.school)#',
 			bottomText 	: 'notSet',
 			yearText 	: '#jsstringformat(url.yearSel)#',
 			teamNum		: '35',
@@ -336,7 +357,7 @@
 	var dcBasic=[
 		<cfloop query="colors">"#hex#"<cfif currentrow neq recordcount>,</cfif>
 		</cfloop>
-	];	
+	];
 	var colConv=[
 		<cfloop query="clrsconv">"#clrsconv.origHex#|#clrsconv.convHex#|#clrsconv.origDesc#|#clrsconv.convDesc#"<cfif currentrow neq recordcount>,</cfif>
 		</cfloop>
@@ -373,24 +394,24 @@
 							<option value=" "> </option>
 						</cfif>
 					</select>
-				</div>	
+				</div>
 			</div>
 			<div id="design-ideas-header">
 				<div id="dih-internal-activity-selector" style="display:none;">
-					<span 	class="activity-callout-left-a" 
+					<span 	class="activity-callout-left-a"
 							style="color:#ffcb59; font-weight: bold; font-size:20px;">&raquo;&raquo;&raquo;</span>
-					<select id="activityList" 
-							style="width:60%; max-width:60%; margin-left:4px; margin-right:4px; background-color:#FFFFFF;" 
-							name="Activity" 
+					<select id="activityList"
+							style="width:60%; max-width:60%; margin-left:4px; margin-right:4px; background-color:#FFFFFF;"
+							name="Activity"
 							onchange="<cfoutput>setActivity(this,'#jsstringformat(url.sc_id)#','#jsstringformat(url.shop_category_id)#')</cfoutput>">
 						<option value="">Select Activity...</option>
 						<cfoutput query="acts">
 							<cfif activity_id gt 0>
 								<option value="#activity_id#" <cfif isdefault>selected="selected"</cfif>>#htmleditformat(name)#</option>
 							</cfif>
-						</cfoutput>	
+						</cfoutput>
 					</select>
-					<span 	class="activity-callout-left-a" 
+					<span 	class="activity-callout-left-a"
 							style="color:#ffcb59; font-weight: bold; font-size:20px;">&laquo;&laquo;&laquo;</span>
 				</div>
 				<div id="dih-external-activity-selector" style="display:none;">
@@ -401,7 +422,7 @@
 				<div id="dih-back-designs-header" style="display:none;">
 					SELECT YOUR BACK DESIGN
 				</div>
-			</div>			
+			</div>
 			<div id="designListDiv">
 				<div id="svglist-wrapper">
 					<div id="svglist" style="-webkit-overflow-scrolling:touch;"></div>
@@ -515,35 +536,35 @@
 				<div id="action-column-price"><span id="acp-value"></span></div>
 				<div id="action-column-price-each">
 					PRICE EACH
-					<a href="javascript:void(0);" onclick="popCart();gaTrackEvent('Wholesale','Bulk Discount Click');" style="padding-top:8px;display:block;" id="bulk-priceing-button"><img src="_img/btn_bulk_pricing-109x26.gif" border="0" width="109" height="26" /></a>
+					<a href="javascript:void(0);" onclick="popCart();gaTrackEvent('Wholesale','Bulk Discount Click');adRollTrackEvent('bulk_order');" style="padding-top:8px;display:block;" id="bulk-priceing-button"><img src="_img/btn_bulk_pricing-109x26.gif" border="0" width="109" height="26" /></a>
 				</div>
 				<div id="ncWrapper">
 					<div id="ncSize">
 						<select id="ncS" name="ncS" style="width:100px;" onchange="ncSetPrice();"></select>
 					</div>
 					<div id="ncQuan" style="padding-top:10px;">
-						<input 	style="width:90px;" 
+						<input 	style="width:90px;"
 								name="ncQ"
-								id="ncQ" 
-								type="number" 
-								value="1" 
-								pattern="[0-9]*" 
-								placeholder="Quan" 
-								min="1" 
-								step="1" 
-								onclick="this.select();" 
+								id="ncQ"
+								type="number"
+								value="1"
+								pattern="[0-9]*"
+								placeholder="Quan"
+								min="1"
+								step="1"
+								onclick="this.select();"
 								onchange="ncSetPrice();"
-								onkeyup="ncSetPrice();" 
+								onkeyup="ncSetPrice();"
 								<cfif url.skuprice eq '' or url.skuprice eq '0.00'>disabled="disabled"</cfif>
 						/>
 					</div>
 				</div>
 				<a id="btn-add-to-cart" href="javascript:void(0);"><img src="_img/btn_add_to_cart-162x73.png" alt="" border="0" width="162" height="73" /></a>
-				<div id="frontViewBut" 
-					class="bigButton9" 
+				<div id="frontViewBut"
+					class="bigButton9"
 					onclick="showFront();"><div style="position:relative;padding-top:9px;">VIEW FRONT</div></div>
-				<div id="backViewBut" 
-					class="bigButton9" 
+				<div id="backViewBut"
+					class="bigButton9"
 					onclick="showBack();"><div style="position:relative;padding-top:9px;">BACK DESIGN</div></div>
 				<div id="zoomBut" class="bigButton9" onclick="toggleZoom();">ZOOM</div>
 			</div>
@@ -557,7 +578,7 @@
 													float:right;
 													margin-left:2px;">
 					<div style="position:relative; left:0; top:0; overflow:hidden; height:<cfoutput>#winSize#</cfoutput>px; width:<cfoutput>#winSize#</cfoutput>px; display:block;">
-					<div id="backDesignerDiv" 
+					<div id="backDesignerDiv"
 						style="height:<cfoutput>#winSize#</cfoutput>px;
 								width:<cfoutput>#winSize#</cfoutput>px;
 								<cfif back.ImageFileName neq "">background-image:url('/products/<cfif winSize lt 186 and not url.fullSizeProductImagesOnly>catalogsize/<cfelseif winsize lt 221 and not url.fullSizeProductImagesOnly>cartsize/</cfif><cfoutput>#REReplaceNoCase(back.ImageFileName,"\.jpg$","\.png")#</cfoutput>');</cfif>
@@ -571,20 +592,20 @@
 								-moz-transition: all .4s ease-in-out;
 								-o-transition: all .4s ease-in-out;
 								transition: all .4s ease-in-out;
-								opacity:0;">	
-						<svg:svg id="backsvg" 
-								version="1.1" 
-								style="width:<cfoutput>#winSize#</cfoutput>px; 
+								opacity:0;">
+						<svg:svg id="backsvg"
+								version="1.1"
+								style="width:<cfoutput>#winSize#</cfoutput>px;
 										height:<cfoutput>#winSize#</cfoutput>px;
 										position:absolute;
 										top:0;
-										left:0;" 
-								viewBox="0 0 <cfoutput>#winSize# #winSize#</cfoutput>" 
-								preserveAspectRatio="none" 
+										left:0;"
+								viewBox="0 0 <cfoutput>#winSize# #winSize#</cfoutput>"
+								preserveAspectRatio="none"
 								xmlns="http://www.w3.org/2000/svg">
 						</svg:svg>
 					</div>
-					<div id="designerDiv" 
+					<div id="designerDiv"
 						 style="position:absolute;
 								top:0;
 								left:0;
@@ -600,17 +621,17 @@
 								transition: all .4s ease-in-out;
 								cursor:hand;
 								cursor:pointer;
-								opacity:0;"	
-						onclick="toggleZoom();">	
-						<svg:svg id="svg" 
-								version="1.1" 
-								style="width:<cfoutput>#winSize#</cfoutput>px; 
+								opacity:0;"
+						onclick="toggleZoom();">
+						<svg:svg id="svg"
+								version="1.1"
+								style="width:<cfoutput>#winSize#</cfoutput>px;
 										height:<cfoutput>#winSize#</cfoutput>px;
 										position:absolute;
 										top:0;
-										left:0;" 
-								viewBox="0 0 <cfoutput>#winSize# #winSize#</cfoutput>" 
-								preserveAspectRatio="none" 
+										left:0;"
+								viewBox="0 0 <cfoutput>#winSize# #winSize#</cfoutput>"
+								preserveAspectRatio="none"
 								onload="svginit(evt);"
 							 	xmlns="http://www.w3.org/2000/svg">
 							<defs>
@@ -687,7 +708,7 @@
 										}
 										@font-face {
 										  	font-family: 'DASSportScriptRegular';
-										  	src: url('assets/sportscript.eot'); /* IE 5-8 */ 
+										  	src: url('assets/sportscript.eot'); /* IE 5-8 */
 										  	src: url('assets/sportscript.eot?#iefix') format('embedded-opentype'),
 										  		 url('assets/sportscript.woff') format('woff'),    /* FF 3.6, Chrome 5, IE9, Chrome 38 */
 										       	 url('assets/sportscript.ttf') format('truetype'), /* Opera, Safari */
@@ -697,7 +718,7 @@
 										}
 										@font-face {
 										  	font-family: 'dascollegiatethinregular';
-										  	src: url('assets/collegiatethin.eot'); /* IE 5-8 */ 
+										  	src: url('assets/collegiatethin.eot'); /* IE 5-8 */
 										  	src: url('assets/collegiatethin.eot?#iefix') format('embedded-opentype'),
 										  		 url('assets/collegiatethin.woff') format('woff'),    /* FF 3.6, Chrome 5, IE9, Chrome 38 */
 										       	 url('assets/collegiatethin.ttf') format('truetype'), /* Opera, Safari */
@@ -707,7 +728,7 @@
 										}
 										@font-face {
 										  	font-family: 'gesso';
-										  	src: url('assets/gesso___-webfont.eot'); /* IE 5-8 */ 
+										  	src: url('assets/gesso___-webfont.eot'); /* IE 5-8 */
 										  	src: url('assets/gesso___-webfont.eot?#iefix') format('embedded-opentype'),
 										  		 url('assets/gesso___-webfont.woff') format('woff'),    /* FF 3.6, Chrome 5, IE9, Chrome 38 */
 										       	 url('assets/gesso___-webfont.ttf') format('truetype'), /* Opera, Safari */
@@ -717,7 +738,7 @@
 										}
 										@font-face {
 										  	font-family: 'destroyregular';
-										  	src: url('assets/destroy_new_6_28.eot'); /* IE 5-8 */ 
+										  	src: url('assets/destroy_new_6_28.eot'); /* IE 5-8 */
 										  	src: url('assets/destroy_new_6_28.eot?#iefix') format('embedded-opentype'),
 										       	 url('assets/destroy_new_6_28.woff') format('woff'),    /* FF 3.6, Chrome 5, IE9, Chrome 38 */
 										       	 url('assets/destroy_new_6_28.ttf') format('truetype'), /* Opera, Safari */
@@ -727,7 +748,7 @@
 										}
 										@font-face {
 										  	font-family: 'sfcollegiateregular';
-										  	src: url('assets/sf_collegiate-webfont.eot'); /* IE 5-8 */ 
+										  	src: url('assets/sf_collegiate-webfont.eot'); /* IE 5-8 */
 										  	src: url('assets/sf_collegiate-webfont.eot?#iefix') format('embedded-opentype'),
 										  		 url('assets/sf_collegiate-webfont.woff') format('woff'),    /* FF 3.6, Chrome 5, IE9, Chrome 38 */
 										       	 url('assets/sf_collegiate-webfont.ttf') format('truetype'), /* Opera, Safari */
@@ -786,7 +807,7 @@
 						</svg:svg>
 					</div>
 					</div>
-					<div id="designer_wait" 
+					<div id="designer_wait"
 						style="/* float:left; */
 								position:absolute;
 								margin-left:-16px;
@@ -805,8 +826,8 @@
 								/* background-color:rgba(0,0,0,0.09); */">
 						<img src="/svg/ajax-loader-round.gif" alt="" width="32" height="32" />
 					</div>
-				</div> <!--- #div_product_holder ---> 
-				<div id="viewControls" 
+				</div> <!--- #div_product_holder --->
+				<div id="viewControls"
 					 style="float:left;
 							/* position:absolute; */
 							/* margin-left:-50px; */
@@ -820,7 +841,7 @@
 							/* display:block; */
 							border-radius:8px;
 							background-color:rgba(0,0,0,0.09);">
-						
+
 				</div> <!--- #viewControls --->
 					<!--- <br /><a href="#" onclick="javascript:parent.showMenu('2');return false;" style="display:none;"><img style="margin-top:10px;" src="btn_change_product.png" width="44" height="37" border="0" alt="change product" /></a>
 					--->
@@ -902,7 +923,7 @@
 				<cfloop query="topcats">
 					<cfquery name="cat" datasource="#dsn#">
 					SELECT cc.*
-					FROM 
+					FROM
 					CatalogCategory cc
 					where catalogTopCategory_id=#catalogTopCategory_ID#
 					ORDER BY cc.sortOrder
@@ -919,7 +940,7 @@
 						</ul>
 					</li>
 				</cfloop>
-			</ul>	
+			</ul>
 			</cfoutput>
 		</div>
 		<div id="sizeChartOverlay" style="display:none;">
@@ -961,15 +982,15 @@
 							</div>
 							<div style="width:90%; display:inline-block;">
 								<select class="cart-size-field" id="sku" name="sku" onchange="setPrice();"></select>
-								<input 	class="cart-quantity-field" 
-										name="quan" 
-										type="number" 
-										value="1" 
-										pattern="[0-9]*" 
-										placeholder="Quan" 
-										min="1" 
-										step="1" 
-										onclick="this.select();" 
+								<input 	class="cart-quantity-field"
+										name="quan"
+										type="number"
+										value="1"
+										pattern="[0-9]*"
+										placeholder="Quan"
+										min="1"
+										step="1"
+										onclick="this.select();"
 										onchange="setPrice();"
 										onkeyup="setPrice();"
 								/>
@@ -987,8 +1008,8 @@
 										<span style="font-size:16px;font-weight:bold;">Bulk Savings</span><br />
 										<span style="font-size:12px;color:#CF201D;">PRICE BREAKS</span><br />
 										<div id="discount-grid-display" style="padding:4px;"></div>
-									</div>			
-								</div>					
+									</div>
+								</div>
 							</center>
 							<div id="zoomDivsHeader" style="font-size:12px; font-weight:bold;position:relative;">
 								<div style="width:37%;float:left;font-size:12px;font-weight:bold;text-align:center;margin-top:0px;margin-left:0px;">
@@ -999,10 +1020,10 @@
 									<span style="margin-right:20px;">BACK</span>
 									<a href="javascript:void(0);" onclick="closeCart();showBack();" style="text-decoration:none;margin-right:0px;">Edit &raquo;</a>
 								</div>
-								<div id="remback" style="position:absolute;top:320px;left:-1700px;"><a href="javascript:toggleAddBackDesign('show');" style="font-size:12px;font-weight:bold;text-decoration:none;">Remove Back Design &raquo;</a></div>												
+								<div id="remback" style="position:absolute;top:320px;left:-1700px;"><a href="javascript:toggleAddBackDesign('show');" style="font-size:12px;font-weight:bold;text-decoration:none;">Remove Back Design &raquo;</a></div>
 								<div style="clear:both;"></div>
 							</div>
-							<div id="zoomDivFront" 
+							<div id="zoomDivFront"
 								style="height:385px;
 										width:385px;
 										position:absolute;
@@ -1024,19 +1045,19 @@
 										-webkit-transform: scale(0.32);
 										transform-origin:top right;
 										transform: scale(0.32);
-										cursor:pointer;" 
-								onclick="toggleMyZoom(this);" 
-								>	
-								<svg:svg id="zoomsvgfront" 
-										version="1.1" 
-										style="width:385px; 
-												height:385px;" 
-										viewBox="0 0 385 385" 
-										preserveAspectRatio="none" 
+										cursor:pointer;"
+								onclick="toggleMyZoom(this);"
+								>
+								<svg:svg id="zoomsvgfront"
+										version="1.1"
+										style="width:385px;
+												height:385px;"
+										viewBox="0 0 385 385"
+										preserveAspectRatio="none"
 										xmlns="http://www.w3.org/2000/svg">
 								</svg:svg>
 							</div>
-							<div id="zoomDivBack" 
+							<div id="zoomDivBack"
 								style="height:385px;
 										width:385px;
 										position:absolute;
@@ -1060,25 +1081,25 @@
 										transform-origin:top right;
 										transform: scale(0.32);
 										<!--- <cfif not back.recordcount>display:none;</cfif> --->
-										cursor:pointer;" 
-								onclick="toggleMyZoom(this);" 
-								>	
-								<svg:svg id="zoomsvgback" 
-										version="1.1" 
-										style="width:385px; 
-												height:385px;" 
-										viewBox="0 0 385 385" 
-										preserveAspectRatio="none" 
+										cursor:pointer;"
+								onclick="toggleMyZoom(this);"
+								>
+								<svg:svg id="zoomsvgback"
+										version="1.1"
+										style="width:385px;
+												height:385px;"
+										viewBox="0 0 385 385"
+										preserveAspectRatio="none"
 										xmlns="http://www.w3.org/2000/svg">
 								</svg:svg>
 							</div>
-							<div id="zoomDivBackBorder" 
+							<div id="zoomDivBackBorder"
 								style="height:115px;
 										width:115px;
 										position:absolute;
 										top:190px;
 										left:24px;
-										opacity:100%;	
+										opacity:100%;
 										background-color:#EAEAEA;
 										font-size:12px;
 										padding:5px;">
@@ -1088,7 +1109,7 @@
 										</label>
 								</div>
 							</div>
-			
+
 							<div id="addback-checkbox-replacement" style="width:190px;">
 								&nbsp;
 							</div>
@@ -1142,15 +1163,15 @@
 									<div style="display:inline-block; width:90%;">
 										<select class="cart-size-field" name="sku" onchange="setPrice();" id="cS"></select>
 										<input 	class="cart-quantity-field"
-												id="cQ" 
-												name="quan" 
-												type="number" 
-												value="1" 
-												pattern="[0-9]*" 
-												placeholder="Quan" 
-												min="1" 
-												step="1" 
-												onclick="this.select();" 
+												id="cQ"
+												name="quan"
+												type="number"
+												value="1"
+												pattern="[0-9]*"
+												placeholder="Quan"
+												min="1"
+												step="1"
+												onclick="this.select();"
 												onchange="setPrice();"
 												onkeyup="setPrice();"
 												<cfif url.skuprice eq '' or url.skuprice eq '0.00'>disabled="disabled"</cfif>
@@ -1164,7 +1185,7 @@
 								</div>
 							</div>
 
-						
+
 							<div id="add-row" class="cp-row short" onclick="cloneSizeBlock();" style="text-align:left;border-bottom:0;<cfif url.skuprice eq '' or url.skuprice eq '0.00'>display:none;</cfif>">
 								<div id="cart-view-toggle">+ Buy More</div>
 							</div>
@@ -1178,13 +1199,13 @@
 											</td><td valign="top" style="font-size:12px;" align="left">$<span id="back-premium-bottom">0.00</span></td></tr>
 											<tr><td valign="top" style="font-size:14px; color:#333333; font-weight: bold;" align="right">ORDER TOTAL:</td><td width="20">
 											</td><td valign="top" style="font-size:14px; color:#333333; font-weight: bold;" align="left">$<span id="order-total-bottom">0.00</span></td></tr>
-										</table>										
+										</table>
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-						
+
 					<!---
 					<div class="navcircle-outer"><div class="navcircle-on" /></div>
 					<div class="navcircle-outer" onclick="showCartPageTwo()"><div class="navcircle-off" /></div>
@@ -1194,17 +1215,17 @@
 				<div id="cart-page-2">
 					<div id="cart-back-designs" style="height:335px; display:block; text-align:center;">
 						<div id="cart-svgbacklist-wrapper" style="width:298px; height:335px; overflow:hidden; position:absolute; top:10px; left:-149px; margin-left:50%;">
-							<div 	id="cart-svgbacklist" 
-									style=	"width:345px; 
-											height:335px; 
-											padding:0; 
-											text-align:left; 
-											overflow-y:auto; 
-											/* opacity: 1; */ 
-											/* position:absolute; */ 
+							<div 	id="cart-svgbacklist"
+									style=	"width:345px;
+											height:335px;
+											padding:0;
+											text-align:left;
+											overflow-y:auto;
+											/* opacity: 1; */
+											/* position:absolute; */
 											/* top:0; */
-											/* display:inline-block; */ 
-											/* margin-left:50%; */ 
+											/* display:inline-block; */
+											/* margin-left:50%; */
 											/* left:-160px; */ ">
 							</div>
 						</div>
@@ -1249,10 +1270,10 @@
 								<p id="promoText" style="position: absolute;top:150px;left:125px;margin: 0;color: rgb(113, 113, 113);font-style: italic;font-size: 14px;">This Promo will load automatically.</p>
 								</div>
 							</div>
-							<div id="right" style="width: 30%; height: 390px; float:right; display:inline-block; margin-top:50px; background-color:rgba(0, 0, 0, 0.17); padding-top:45px; border-bottom-right-radius:inherit;">							
+							<div id="right" style="width: 30%; height: 390px; float:right; display:inline-block; margin-top:50px; background-color:rgba(0, 0, 0, 0.17); padding-top:45px; border-bottom-right-radius:inherit;">
 							<a href="javascript:void(0);" class="btnContinueShopping" style="width: 200px; display: inline-block; margin-top:80px;" onclick="continueShopping();">CONTINUE SHOPPING</a>
-							<a href="javascript:void(0);" class="btnGreen" style="width: 200px; display: inline-block; margin-top:50px;" onclick="window.parent.location='<cfoutput>#cartHost#/showcart.cfm?sc_id=#url.sc_id#</cfoutput>';">CHECKOUT NOW</a>
-							</div>							
+							<a href="javascript:void(0);" class="btnGreen" style="width: 200px; display: inline-block; margin-top:50px;" onclick="window.parent.location='<cfoutput>#url.checkout_url#</cfoutput>';">CHECKOUT NOW</a>
+							</div>
 							<!---
 							<h3 style="color:red; font-weight:bold; text-shadow:0 1px 2px rgba(0,0,0,0.3);">Success</h3>
 							<p>Your items have been added to your cart!</p>
